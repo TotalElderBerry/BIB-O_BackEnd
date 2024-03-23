@@ -1,5 +1,4 @@
-from sqlalchemy import create_engine,text
-
+from sqlalchemy import create_engine
 
 driver =  'mysql+pymysql://'
 username = "root"
