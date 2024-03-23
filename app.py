@@ -1,5 +1,5 @@
-from flask import Flask, jsonify
-
+from flask import Flask, jsonify,request
+from controllers.login import login
 
 app = Flask(__name__)
 
@@ -11,12 +11,11 @@ def index():
     return "BIB-O bacekdn test"
 
 
-@app.route("/api/bibo")
-
-def test_json():
-    return jsonify(test)
-
 @app.route("/event_organizer/login", methods = ["GET","POST"])
+def login():
+    result = login()
+    return result
+
 
 
 
