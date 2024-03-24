@@ -1,5 +1,5 @@
 from flask import Flask, jsonify,request
-from controllers import login,register
+from controllers import login, register
 
 app = Flask(__name__)
 
@@ -17,7 +17,7 @@ def login_user():
     result = login()
     return result
 
-@app.route("/event_organizer/registration", methods = ["GET","POST"])
+@app.route("/event_organizer/<event_id>/registration", methods = ["GET","POST"])
 
 def register_user():
 
