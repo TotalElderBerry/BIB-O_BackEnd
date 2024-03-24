@@ -13,6 +13,7 @@ def index():
 
 @app.route("/event_organizer/login", methods = ["GET","POST"])
 def login():
+    
     result = login()
     return result
 
