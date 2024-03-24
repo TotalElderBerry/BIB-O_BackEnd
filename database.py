@@ -1,10 +1,14 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, URL
 
-driver =  'mysql+pymysql://'
-username = "root"
-password = "@"
-host = "localhost/"
-database = "bibo_db"
 
-engine = create_engine(driver+username+password+host+database, echo = True)
+database_url = URL.create('mysql+pymysql',
+                          username = 'root',
+                          password = '',
+                          host = 'localhost',
+                          database = 'bibo-db')
+
+
+engine = create_engine(database_url, echo = True)
+
+
 
