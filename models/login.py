@@ -4,8 +4,9 @@ from flask import session
 
 def login_event_organizer(data):
 
+    print(engine)
     with engine.connect() as conn:
-
+    
         query = text("SELECT * FROM event_organizer WHERE email = :email")
         dict_text = dict(email = data["email"])
 
@@ -18,6 +19,7 @@ def login_event_organizer(data):
             return True
         else:
             return False
+
    
             
             
