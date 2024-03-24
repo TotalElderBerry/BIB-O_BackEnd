@@ -1,33 +1,17 @@
-from flask import Flask, jsonify,request
-from controllers import login, register
+from flask import Flask, jsonify, request, render_template
+from event_organizer.event_organizer import event_organizer
 
 app = Flask(__name__)
+
+# blue_prints
+app.register_blueprint(event_organizer, url_prefix="/event_organizer")
 
 
 # Routes
 @app.route("/")
-
 def index():
-    return "BIB-O bacekdn test"
-
-
-@app.route("/event_organizer/login", methods = ["GET","POST"])
-def login_user():
-
-    result = login()
-    return result
-
-@app.route("/event_organizer/<event_id>/registration", methods = ["GET","POST"])
-
-def register_user():
-
-
-    result = register()
-    return result
-
-
-
+    return render_template("index.js")
 
 
 if __name__ == "__main__":
-    app.run(host = "0.0.0.0", debug = True)
+    app.run(host="0.0.0.0", debug=True)
