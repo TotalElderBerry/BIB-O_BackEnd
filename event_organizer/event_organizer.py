@@ -48,7 +48,7 @@ def login():
             elif email or password is None:
                 error = EMAIL_PASSWORD_EMPTY
 
-            if error is not None:
+            if error is None:
                 session.clear()
                 session["email"] = result[4]
                 return redirect(url_for("home"), message=LOGIN_SUCESS)

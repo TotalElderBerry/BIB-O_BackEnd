@@ -15,3 +15,12 @@ EMAIL_EMPTY = "Email is required!"
 PASSWORD_EMPTY = "Password is required!"
 STATUS_EMPTY = "Status is required!"
 EMAIL_EXISTS = "Username already exists!"
+
+# Events
+
+NO_EVENTS = "No Events at the moment"
+EVENT_DOESNT_EXIST = "Event does not exist."
+EVENT_NAME_EMPTY = "Event name is required!"
+EVENT_DATE_EMPTY = "Event date is required!"
+EVENT_EXISTS = "Event already existed!"
+EVENT_SUCESS = "Event created sucessfully!"

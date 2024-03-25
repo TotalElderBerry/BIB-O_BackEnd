@@ -1,10 +1,12 @@
 from flask import Flask, jsonify, request, render_template
 from event_organizer.event_organizer import event_organizer
+from events import events
 
 app = Flask(__name__)
 
 # blue_prints
 app.register_blueprint(event_organizer, url_prefix="/event_organizer")
+app.register_blueprint(events, url_prefix="/events")
 
 
 # Routes
