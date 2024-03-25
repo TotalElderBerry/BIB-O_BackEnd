@@ -3,6 +3,8 @@ INVALID_PASSWORD = "Password is Incorrect!"
 INVALID_EMAIL = "Email is Incorrect!"
 
 LOGIN_SUCESS = "Login Sucess!"
+LOGOUT_SUCESS = "Logout Sucessfully!"
+REGISTRATION_SUCESS = "Registered Sucessfully!"
 
 
 # Event Organizer data

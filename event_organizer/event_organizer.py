@@ -11,6 +11,9 @@ from strings import (
     INVALID_EMAIL,
     INVALID_PASSWORD,
     EMAIL_EXISTS,
+    LOGIN_SUCESS,
+    LOGOUT_SUCESS,
+    REGISTRATION_SUCESS,
 )
 
 
@@ -34,7 +37,7 @@ def login():
         with engine.connect() as conn:
 
             query = text("SELECT * FROM event_organizer WHERE email = :email")
-            params = email = email
+            params = dict(email)
 
             result = conn.execute(query, params).fetchone()
 
@@ -48,7 +51,7 @@ def login():
             if error is not None:
                 session.clear()
                 session["email"] = result[4]
-                return redirect(url_for("home"))
+                return redirect(url_for("home"), message=LOGIN_SUCESS)
 
         flash(error)
 
@@ -94,13 +97,25 @@ def register(event_id):
                 except exc.IntegrityError as e:
                     error = EMAIL_EXISTS
                 else:
-                    return redirect(url_for("login"))
+                    return redirect(url_for("login"), message=REGISTRATION_SUCESS)
 
-    flash(error)
+        flash(error)
+
     return render_template("registration.vue")
 
 
 @event_organizer.route("/logout")
 def logout():
     session.pop("email", None)
-    return redirect(url_for("login"))
+    return redirect(url_for("login"), message=LOGOUT_SUCESS)
+
+
+class event_organizer_obj:
+
+    def __init__(self, event_id, name, address, email, password, status):
+        self.event_id = event_id
+        self.name = name
+        self.address = address
+        self.email = email
+        self.password = password
+        self.status = status
