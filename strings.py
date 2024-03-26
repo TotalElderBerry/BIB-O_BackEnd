@@ -24,3 +24,7 @@ EVENT_NAME_EMPTY = "Event name is required!"
 EVENT_DATE_EMPTY = "Event date is required!"
 EVENT_EXISTS = "Event already existed!"
 EVENT_SUCESS = "Event created sucessfully!"
+
+# Photographer
+PHOTOGRAPHER_EXISTS = "Photographer already registered!"
+PHOTOGRAPHER_REGISTERED_SUCCESSFULLY = "Photographer reigstered sucessfully!"
