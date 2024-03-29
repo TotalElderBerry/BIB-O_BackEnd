@@ -29,24 +29,18 @@ def get_all_events():
 
     with engine.connect() as conn:
 
-        if error is None:
-            query = text("SELECT * FROM event")
+        query = text("SELECT * FROM event")
 
-            result = conn.execute(query).fetchall()
+        result = conn.execute(query).fetchall()
 
-            if len(result) is None:
+        if not result:
+            error = NO_EVENTS
+            return jsonify(error)
+        else:
 
-                error = NO_EVENTS
-
-            else:
-
-                for row in result:
-                    events.append(dict(row._mapping))
-                return events
-
-    flash(error)
-
-    return jsonify(events)
+            for row in result:
+                events.append(dict(row._mapping))
+            return jsonify(events)
 
 
 # Get events by id
@@ -60,9 +54,7 @@ def get_by_id(id):
 
         result = conn.execute(query, param).fetchone()
 
-        output = error = NO_EVENTS if len(result) == 0 else dict(result._mapping)
-
-        # return render_template("events.vue", events=output, error=error)
+        output = NO_EVENTS if result is None else dict(result._mapping)
 
         return jsonify(output)
 
@@ -77,10 +69,12 @@ def create_eevent():
     error = None
 
     if request.method == "POST":
-        if name is None:
+        if not name:
             error = EVENT_NAME_EMPTY
-        elif date is None:
+            return jsonify(error)
+        elif not date:
             error = EVENT_DATE_EMPTY
+            return jsonify(error)
 
         if error is None:
 
@@ -88,19 +82,16 @@ def create_eevent():
 
                 try:
                     query = text("INSERT INTO event(name,date) VALUES(:name,:date)")
-                    params = dict(name, date)
+                    params = dict(name=name, date=date)
 
-                    conn.execute(query, params)
+                    result = conn.execute(query, params)
 
                     conn.commit()
+                    return jsonify(EVENT_SUCESS)
 
                 except exc.IntegrityError as e:
                     error = EVENT_EXISTS
-
-                else:
-                    redirect(url_for("event"), message=EVENT_SUCESS)
-
-    return render_template("create_event.vue")
+                    return jsonify(error)
 
 
 # Update Event
