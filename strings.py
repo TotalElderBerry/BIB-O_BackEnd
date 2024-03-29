@@ -33,3 +33,7 @@ PHOTOGRAPHER_REGISTERED_SUCCESSFULLY = {
 # Runner
 FIRST_NAME_EMPTY = {"message": "First name is required!"}
 LAST_NAME_EMPTY = {"message": "Last name is required!"}
+BIB_NO_EMPTY = {"message": "BIB Number is required!"}
+RUNNER_REGISTRATION_SUCCESSFUL = {"message": "Runner registered sucessfully!"}
+NO_RUNNERS = {"message": "No Runners registered at the moment"}
+NO_SINGLE_RUNNER = {"message": "Runner doesn't exists"}
