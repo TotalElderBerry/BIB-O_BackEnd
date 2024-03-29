@@ -1,7 +1,7 @@
 from datetime import datetime
 from database import engine
 from sqlalchemy import text, exc
-from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
+from flask import Blueprint, request, jsonify
 from strings import (
     NO_EVENTS,
     EVENT_DATE_EMPTY,
@@ -54,7 +54,7 @@ def get_by_id(id):
 
         result = conn.execute(query, param).fetchone()
 
-        output = NO_EVENTS if result is None else dict(result._mapping)
+        output = NO_EVENTS if result is None else dict(result)
 
         return jsonify(output)
 
@@ -80,18 +80,13 @@ def create_eevent():
 
             with engine.connect() as conn:
 
-                try:
-                    query = text("INSERT INTO event(name,date) VALUES(:name,:date)")
-                    params = dict(name=name, date=date)
+                query = text("INSERT INTO event(name,date) VALUES(:name,:date)")
+                params = dict(name=name, date=date)
 
-                    result = conn.execute(query, params)
+                conn.execute(query, params)
 
-                    conn.commit()
-                    return jsonify(EVENT_SUCESS)
-
-                except exc.IntegrityError as e:
-                    error = EVENT_EXISTS
-                    return jsonify(error)
+                conn.commit()
+                return jsonify(EVENT_SUCESS)
 
 
 # Update Event
