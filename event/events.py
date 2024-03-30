@@ -29,12 +29,12 @@ def get_all_events():
 
         if not result:
             error = NO_EVENTS
-            return jsonify(error)
+            return jsonify(error), 404
         else:
 
             for row in result:
                 events.append(dict(row._mapping))
-            return jsonify(events)
+            return jsonify(events), 200
 
 
 # Get events by id
@@ -48,7 +48,7 @@ def get_by_id(id):
 
         result = conn.execute(query, param).fetchone()
 
-        output = NO_EVENTS if result is None else dict(result)
+        output = (NO_EVENTS, 404 if result is None else dict(result), 200)
 
         return jsonify(output)
 
@@ -65,10 +65,10 @@ def create_eevent():
     if request.method == "POST":
         if not name:
             error = EVENT_NAME_EMPTY
-            return jsonify(error)
+            return jsonify(error), 400
         elif not date:
             error = EVENT_DATE_EMPTY
-            return jsonify(error)
+            return jsonify(error), 400
 
         if error is None:
 
@@ -80,7 +80,7 @@ def create_eevent():
                 conn.execute(query, params)
 
                 conn.commit()
-                return jsonify(EVENT_SUCESS)
+                return jsonify(EVENT_SUCESS), 201
 
 
 # Update Event

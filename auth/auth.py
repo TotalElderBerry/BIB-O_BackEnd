@@ -24,7 +24,7 @@ def login():
         if result is not None:
             if password != result[5]:
                 error = INVALID_PASSWORD
-                return jsonify(error)
+                return jsonify(error), 400
             else:
                 session.clear()
                 session["email"] = result[4]

@@ -1,4 +1,4 @@
-from database import engine,
+from database import engine
 from sqlalchemy import text, exc
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 from strings import *
@@ -22,16 +22,16 @@ photographer = Blueprint("photographers", __name__)
 def register_photographer(event_organizer_id):
 
     data = request.form
-   
+
     if request.method == "POST":
         if data["name"] is None:
-            return jsonify(NAME_EMPTY)
+            return jsonify(NAME_EMPTY), 404
         elif data["address"] is None:
-            return jsonify(ADDRESS_EMPTY)
+            return jsonify(ADDRESS_EMPTY), 404
         elif data["email"] is None:
-            return jsonify(EMAIL_EMPTY)
+            return jsonify(EMAIL_EMPTY), 404
         elif data["status"] is None:
-            return jsonify(STATUS_EMPTY)
+            return jsonify(STATUS_EMPTY), 404
 
         with engine.connect() as conn:
             query = text(
@@ -49,4 +49,4 @@ def register_photographer(event_organizer_id):
             conn.execute(query, params)
 
             conn.commit()
-        return jsonify(PHOTOGRAPHER_REGISTERED_SUCCESSFULLY)
+        return jsonify(PHOTOGRAPHER_REGISTERED_SUCCESSFULLY), 201

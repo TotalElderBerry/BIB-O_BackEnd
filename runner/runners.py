@@ -1,14 +1,7 @@
 from database import engine
 from flask import Blueprint, session, request, jsonify
-from strings import (
-    FIRST_NAME_EMPTY,
-    LAST_NAME_EMPTY,
-    BIB_NO_EMPTY,
-    RUNNER_REGISTRATION_SUCCESSFUL,
-    NO_RUNNERS,
-    NO_SINGLE_RUNNER,
-)
-from sqlalchemy import text, exc
+from strings import *
+from sqlalchemy import text
 
 
 runners = Blueprint("runners", __name__)
@@ -31,7 +24,7 @@ def get_all_runners():
             for row in result:
                 runners.append(dict(row._mapping))
 
-                return jsonify(runners)
+                return jsonify(runners), 200
 
 
 @runners.route("/<id>")
@@ -44,7 +37,7 @@ def get_one_runner(id):
 
         result = conn.execute(query, params).fetchone()
 
-        output = NO_SINGLE_RUNNER if result is None else dict(result)
+        output = NO_SINGLE_RUNNER, 404 if result is None else dict(result), 200
 
         return jsonify(output)
 
@@ -59,11 +52,11 @@ def registration(event_id):
         data = request.form
 
         if not data["first_name"]:
-            return jsonify(FIRST_NAME_EMPTY)
+            return jsonify(FIRST_NAME_EMPTY), 404
         elif not data["last_name"]:
-            return jsonify(LAST_NAME_EMPTY)
+            return jsonify(LAST_NAME_EMPTY), 404
         elif not data["bib_no"]:
-            return jsonify(BIB_NO_EMPTY)
+            return jsonify(BIB_NO_EMPTY), 404
 
         with engine.connect() as conn:
 
