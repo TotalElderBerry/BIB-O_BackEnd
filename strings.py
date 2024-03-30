@@ -5,6 +5,7 @@ INVALID_EMAIL = {"message": "Email is Incorrect!"}
 LOGIN_SUCESS = {"message": "Login Sucess!"}
 LOGOUT_SUCESS = {"message": "Logout Sucessfully!"}
 REGISTRATION_SUCESS = {"message": "Registered Sucessfully!"}
+BAD_CREDENTIALS = {"message": "Bad Credentials"}
 
 
 # Event Organizer data
