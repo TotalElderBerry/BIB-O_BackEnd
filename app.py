@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request, render_template
 from event_organizer.event_organizer import event_organizer
 from event.events import events
 from photographer.photographer import photographer
-from runners import runners
+from runner.runners import runners
 
 app = Flask(__name__)
 
