@@ -6,42 +6,35 @@ from strings import *
 auth = Blueprint("auth", __name__)
 
 
-@auth.routes("/login")
+@auth.route("/login", methods=["GET", "POST"])
 def login():
-    def login():
 
-        if request.method == "POST":
-            email = request.form["email"]
-            password = request.form["password"]
+    if request.method == "POST":
+        email = request.form["email"]
+        password = request.form["password"]
 
-            error = None
+        with engine.connect() as conn:
 
-            with engine.connect() as conn:
+            query = text("SELECT * FROM event_organizer WHERE email = :email")
+            params = dict(email=email)
 
-                query = text("SELECT * FROM event_organizer WHERE email = :email")
-                params = dict(email=email)
+            result = conn.execute(query, params).fetchone()
+            rows = result
 
-                result = conn.execute(query, params)
-                rows = result.fetchone()
-
-                if email is None:
-                    error = INVALID_EMAIL
-                    return jsonify(error)
-                elif password != rows[5]:
-                    error = INVALID_PASSWORD
-                    return jsonify(error)
-                elif email or password is None:
-                    error = EMAIL_PASSWORD_EMPTY
-                    return jsonify(error)
-
-                if error is None:
-                    session.clear()
-                    session["email"] = rows[4]
-                    user_session = {"user": session["email"]}
-                    return jsonify(user_session, LOGIN_SUCESS)
+        if result is not None:
+            if password != result[5]:
+                error = INVALID_PASSWORD
+                return jsonify(error)
+            else:
+                session.clear()
+                session["email"] = result[4]
+                response = {"message": LOGIN_SUCESS, "data": dict(rows._mapping)}
+                return jsonify(response), 200
+        else:
+            return jsonify(BAD_CREDENTIALS), 404
 
 
-@event_organizer.route("/logout")
+@auth.route("/logout")
 def logout():
     session.pop("email", None)
-    return redirect(url_for("login"), message=LOGOUT_SUCESS)
+    return jsonify(LOGOUT_SUCESS), 200

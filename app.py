@@ -4,8 +4,11 @@ from event.events import events
 from photographer.photographer import photographer
 from runner.runners import runners
 from auth.auth import auth
+import uuid
 
 app = Flask(__name__)
+
+app.config["SECRET_KEY"] = uuid.uuid4().hex
 
 # blue_prints
 app.register_blueprint(event_organizer, url_prefix="/event_organizer")
