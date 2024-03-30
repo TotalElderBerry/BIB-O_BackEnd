@@ -58,15 +58,12 @@ def registration(event_id):
 
         data = request.form
 
-        error = None
-
         if not data["first_name"]:
-            error = FIRST_NAME_EMPTY
-            return jsonify(error)
+            return jsonify(FIRST_NAME_EMPTY)
         elif not data["last_name"]:
-            error = LAST_NAME_EMPTY
+            return jsonify(LAST_NAME_EMPTY)
         elif not data["bib_no"]:
-            error = BIB_NO_EMPTY
+            return jsonify(BIB_NO_EMPTY)
 
         with engine.connect() as conn:
 
@@ -83,8 +80,9 @@ def registration(event_id):
             conn.execute(query, params)
             conn.commit()
 
-            return jsonify(RUNNER_REGISTRATION_SUCCESSFUL)
+            return jsonify(RUNNER_REGISTRATION_SUCCESSFUL), 201
 
-#update
-        
-#delete
+
+# update
+
+# delete
