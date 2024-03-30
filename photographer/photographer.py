@@ -1,14 +1,7 @@
 from database import engine
 from sqlalchemy import text, exc
 from flask import Blueprint, render_template, redirect, url_for, flash, request
-from strings import (
-    NAME_EMPTY,
-    ADDRESS_EMPTY,
-    EMAIL_EMPTY,
-    STATUS_EMPTY,
-    PHOTOGRAPHER_EXISTS,
-    PHOTOGRAPHER_REGISTERED_SUCCESSFULLY,
-)
+from strings import *
 
 
 class photographer_obj:
