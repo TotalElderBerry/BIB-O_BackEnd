@@ -2,13 +2,7 @@ from datetime import datetime
 from database import engine
 from sqlalchemy import text, exc
 from flask import Blueprint, request, jsonify
-from strings import (
-    NO_EVENTS,
-    EVENT_DATE_EMPTY,
-    EVENT_NAME_EMPTY,
-    EVENT_EXISTS,
-    EVENT_SUCESS,
-)
+from strings import *
 
 
 class event_obj:
