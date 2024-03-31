@@ -1,6 +1,6 @@
 from database import engine
 from sqlalchemy import text, exc
-from flask import Blueprint, render_template, redirect, url_for, request, jsonify
+from flask import Blueprint, request, jsonify
 from strings import *
 
 
