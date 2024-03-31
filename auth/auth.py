@@ -1,9 +1,21 @@
+from functools import wraps
 from flask import Blueprint, session, jsonify, request
 from database import engine
 from sqlalchemy import text
 from strings import *
 
 auth = Blueprint("auth", __name__)
+
+
+def logged_in(f):
+    @wraps(f)
+    def decorated_func(*args, **kwargs):
+        if session.get("logged_in"):
+            return f(*args, **kwargs)
+        else:
+            return jsonify(UNAUTHORIZED), 401
+
+    return decorated_func
 
 
 @auth.route("/login", methods=["GET", "POST"])

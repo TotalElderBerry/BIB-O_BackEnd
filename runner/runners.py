@@ -2,13 +2,13 @@ from database import engine
 from flask import Blueprint, session, request, jsonify
 from strings import *
 from sqlalchemy import text
-from event_organizer.event_organizer import logged_in
+from auth.auth import logged_in
 
 runners = Blueprint("runners", __name__)
 
 
-@logged_in
 @runners.route("/")
+@logged_in
 def get_all_runners():
 
     runners = []
@@ -28,8 +28,8 @@ def get_all_runners():
                 return jsonify(runners), 200
 
 
-@logged_in
 @runners.route("/<id>")
+@logged_in
 def get_one_runner(id):
 
     with engine.connect() as conn:

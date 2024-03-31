@@ -2,6 +2,7 @@ from database import engine
 from sqlalchemy import text, exc
 from flask import Blueprint, request, jsonify
 from strings import *
+from auth.auth import logged_in
 
 
 class photographer_obj:
@@ -19,6 +20,7 @@ photographer = Blueprint("photographers", __name__)
 
 
 @photographer.route("<event_organizer_id>/registration", methods=["GET", "POST"])
+@logged_in
 def register_photographer(event_organizer_id):
 
     data = request.form

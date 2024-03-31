@@ -3,6 +3,7 @@ from database import engine
 from sqlalchemy import text, exc
 from flask import Blueprint, request, jsonify
 from strings import *
+from auth.auth import logged_in
 
 
 class event_obj:
@@ -16,6 +17,7 @@ events = Blueprint("events", __name__)
 
 # Get all events
 @events.route("/")
+@logged_in
 def get_all_events():
 
     events = []
@@ -39,6 +41,7 @@ def get_all_events():
 
 # Get events by id
 @events.route("/<id>")
+@logged_in
 def get_by_id(id):
 
     with engine.connect() as conn:
@@ -55,6 +58,7 @@ def get_by_id(id):
 
 # Create events
 @events.route("/create_event", methods=["GET", "POST"])
+@logged_in
 def create_eevent():
 
     name = request.form["name"]
