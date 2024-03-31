@@ -6,7 +6,7 @@ LOGIN_SUCESS = {"message": "Login Sucess!"}
 LOGOUT_SUCESS = {"message": "Logout Sucessfully!"}
 REGISTRATION_SUCESS = {"message": "Registered Sucessfully!"}
 BAD_CREDENTIALS = {"message": "Bad Credentials"}
-
+UNAUTHORIZED = {"message": "Unauthorized access"}
 
 # Event Organizer data
 

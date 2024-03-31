@@ -1,13 +1,21 @@
-from flask import (
-    Blueprint,
-    request,
-    jsonify,
-)
+from flask import Blueprint, request, jsonify, session
 from database import engine
 from sqlalchemy import text
 from strings import *
+from functools import wraps
 
 event_organizer = Blueprint("event_organizer", __name__, template_folder="templates")
+
+
+def logged_in(f):
+    @wraps(f)
+    def decorated_func(*args, **kwargs):
+        if session.get("logged_in"):
+            return f(*args, **kwargs)
+        else:
+            return jsonify(UNAUTHORIZED), 401
+
+    return decorated_func
 
 
 @event_organizer.route("/<event_id>/register", methods=["GET", "POST"])
