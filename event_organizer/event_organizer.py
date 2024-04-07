@@ -1,3 +1,4 @@
+from functools import wraps
 from flask import Blueprint, request, jsonify, session
 from database import engine
 from sqlalchemy import text
@@ -44,12 +45,35 @@ def register(event_id):
                 return jsonify(REGISTRATION_SUCESS), 201
 
 
-class event_organizer_obj:
+@event_organizer.route("/login", methods=["GET", "POST"])
+def login():
 
-    def __init__(self, event_id, name, address, email, password, status):
-        self.event_id = event_id
-        self.name = name
-        self.address = address
-        self.email = email
-        self.password = password
-        self.status = status
+    if request.method == "POST":
+        email = request.form["email"]
+        password = request.form["password"]
+
+        with engine.connect() as conn:
+
+            query = text("SELECT * FROM event_organizer WHERE email = :email")
+            params = dict(email=email)
+
+            result = conn.execute(query, params).fetchone()
+            rows = result
+
+        if result is not None:
+            if password != result[5]:
+                error = INVALID_PASSWORD
+                return jsonify(error), 400
+            else:
+                session.clear()
+                session["email"] = result[4]
+                response = {"message": LOGIN_SUCESS, "data": dict(rows._mapping)}
+                return jsonify(response), 200
+        else:
+            return jsonify(BAD_CREDENTIALS), 404
+
+
+@event_organizer.route("/logout")
+def logout():
+    session.pop("email", None)
+    return jsonify(LOGOUT_SUCESS), 200
