@@ -5,17 +5,6 @@ from strings import *
 from auth.auth import logged_in
 
 
-class photographer_obj:
-    def __init__(self, event_organizer_id, name, address, email, password, status):
-
-        self.event_orgainzer_id = event_organizer_id
-        self.name = name
-        self.address = address
-        self.email = email
-        self.password = password
-        self.status = status
-
-
 photographer = Blueprint("photographers", __name__)
 
 
