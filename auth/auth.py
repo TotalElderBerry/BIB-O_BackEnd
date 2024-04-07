@@ -22,31 +22,26 @@ def logged_in(f):
 def login():
 
     if request.method == "POST":
-        email = request.form["email"]
+
+        username = request.form["username"]
         password = request.form["password"]
 
         with engine.connect() as conn:
 
-            query = text("SELECT * FROM event_organizer WHERE email = :email")
-            params = dict(email=email)
+            query = text("SELECT * FROM admin WHERE username = :uname")
+            params = dict(uname=username)
 
             result = conn.execute(query, params).fetchone()
             rows = result
 
-        if result is not None:
-            if password != result[5]:
-                error = INVALID_PASSWORD
-                return jsonify(error), 400
+            if result is not None:
+                if password != result[2]:
+                    error = INVALID_PASSWORD
+                    return jsonify(error), 400
+                else:
+                    session.clear()
+                    session["email"] = result[4]
+                    response = {"message": LOGIN_SUCESS, "data": dict(rows._mapping)}
+                    return jsonify(response), 200
             else:
-                session.clear()
-                session["email"] = result[4]
-                response = {"message": LOGIN_SUCESS, "data": dict(rows._mapping)}
-                return jsonify(response), 200
-        else:
-            return jsonify(BAD_CREDENTIALS), 404
-
-
-@auth.route("/logout")
-def logout():
-    session.pop("email", None)
-    return jsonify(LOGOUT_SUCESS), 200
+                return jsonify(BAD_CREDENTIALS), 404
