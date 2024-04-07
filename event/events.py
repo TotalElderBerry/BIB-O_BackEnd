@@ -1,18 +1,13 @@
-from datetime import datetime
 from database import engine
-from sqlalchemy import text, exc
+from sqlalchemy import text
 from flask import Blueprint, request, jsonify
 from strings import *
 from auth.auth import logged_in
-
-
-class event_obj:
-    def __init__(self, name, date):
-        self.name = name
-        self.date = date
+from flask_cors import CORS
 
 
 events = Blueprint("events", __name__)
+CORS(events)
 
 
 # Get all events
@@ -30,30 +25,39 @@ def get_all_events():
         result = conn.execute(query).fetchall()
 
         if not result:
-            error = NO_EVENTS
-            return jsonify(error), 404
+            response = jsonify(NO_EVENTS)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 400
         else:
 
             for row in result:
                 events.append(dict(row._mapping))
-            return jsonify(events), 200
+                response = jsonify(EVENT_EXISTS, {"data": events})
+                response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 200
 
 
 # Get events by id
-@events.route("/<id>")
+@events.route("/<id>", methods={"GET", "POST"})
 @logged_in
 def get_by_id(id):
 
-    with engine.connect() as conn:
+    if request.method == "GET":
+        with engine.connect() as conn:
 
-        query = text("SELECT * FROM event where id = :id")
-        param = dict(id=id)
+            query = text("SELECT * FROM event where id = :id")
+            param = dict(id=id)
 
-        result = conn.execute(query, param).fetchone()
+            result = conn.execute(query, param).fetchone()
 
-        output = (NO_EVENTS, 404 if result is None else dict(result), 200)
-
-        return jsonify(output)
+            if result is None:
+                response = jsonify(NO_EVENTS)
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                return jsonify(response), 400
+            else:
+                response = jsonify(EVENT_RETRIEVED, {"data": dict(result)})
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                return jsonify(response), 200
 
 
 # Create events
@@ -64,27 +68,29 @@ def create_eevent():
     name = request.form["name"]
     date = request.form["date"]
 
-    error = None
-
     if request.method == "POST":
         if not name:
             error = EVENT_NAME_EMPTY
-            return jsonify(error), 400
+            response = jsonify(EVENT_NAME_EMPTY)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 400
         elif not date:
             error = EVENT_DATE_EMPTY
-            return jsonify(error), 400
+            response = jsonify(EVENT_DATE_EMPTY)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 400
 
-        if error is None:
+        with engine.connect() as conn:
 
-            with engine.connect() as conn:
+            query = text("INSERT INTO event(name,date) VALUES(:name,:date)")
+            params = dict(name=name, date=date)
 
-                query = text("INSERT INTO event(name,date) VALUES(:name,:date)")
-                params = dict(name=name, date=date)
+            conn.execute(query, params)
 
-                conn.execute(query, params)
-
-                conn.commit()
-                return jsonify(EVENT_SUCESS), 201
+            conn.commit()
+            response = jsonify(EVENT_SUCESS)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 201
 
 
 # Update Event
