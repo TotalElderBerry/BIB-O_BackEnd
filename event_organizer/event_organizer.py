@@ -14,15 +14,25 @@ def register(event_id):
 
     if request.method == "POST":
         if data["name"] is None:
-            error = NAME_EMPTY, 404
+            response = jsonify(NAME_EMPTY)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 404
         elif data["address"] is None:
-            error = ADDRESS_EMPTY, 404
+            response = jsonify(ADDRESS_EMPTY)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 404
         elif data["email"] is None:
-            error = EMAIL_EMPTY, 404
+            response = jsonify(EMAIL_EMPTY)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 404
         elif data["password"] is None:
-            error = PASSWORD_EMPTY, 404
+            response = jsonify(PASSWORD_EMPTY)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response
         elif data["status"] is None:
-            error = STATUS_EMPTY, 404
+            response = jsonify(STATUS_EMPTY)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 404
 
         if error is None:
             with engine.connect() as conn:
@@ -42,7 +52,9 @@ def register(event_id):
                 conn.execute(query, params)
                 conn.commit()
 
-                return jsonify(REGISTRATION_SUCESS), 201
+                response = jsonify(REGISTRATION_SUCESS)
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                return response
 
 
 @event_organizer.route("/login", methods=["GET", "POST"])
@@ -62,18 +74,31 @@ def login():
 
         if result is not None:
             if password != result[5]:
-                error = INVALID_PASSWORD
-                return jsonify(error), 400
+                response = jsonify(INVALID_PASSWORD)
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                return response, 400
+
             else:
                 session.clear()
                 session["email"] = result[4]
-                response = {"message": LOGIN_SUCESS, "data": dict(rows._mapping)}
-                return jsonify(response), 200
+                response = jsonify(LOGIN_SUCESS, {"data": dict(rows._mapping)})
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                return response, 200
+
         else:
-            return jsonify(BAD_CREDENTIALS), 404
+            response = jsonify(BAD_CREDENTIALS)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 401
 
 
 @event_organizer.route("/logout")
 def logout():
     session.pop("email", None)
-    return jsonify(LOGOUT_SUCESS), 200
+    response = jsonify(LOGOUT_SUCESS)
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response, 200
+
+
+# Update Event
+
+# Delete Event
