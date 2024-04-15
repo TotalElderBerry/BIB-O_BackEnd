@@ -35,6 +35,12 @@ PHOTOGRAPHER_REGISTERED_SUCCESSFULLY = {
     "success": True,
     "message": "Photographer reigstered sucessfully!",
 }
+GET_PHOTOGRAPHERS = {"success": True, "message": "Photographers retrieved successfully"}
+NO_PHOTOGRAPHERS = {
+    "success": False,
+    "message": "No registered photographers at the moment",
+}
+
 
 # Runner
 FIRST_NAME_EMPTY = {"success": False, "message": "First name is required!"}
