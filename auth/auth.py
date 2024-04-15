@@ -46,8 +46,10 @@ def login():
                 else:
                     session.clear()
                     session["email"] = result[4]
-                    response = {"message": LOGIN_SUCESS, "data": dict(rows._mapping)}
-                    response.heads.add("Access-Control-Allow-Origin", "*")
+                    response = jsonify(
+                        {"message": LOGIN_SUCESS, "data": dict(rows._mapping)}
+                    )
+                    response.headers.add("Access-Control-Allow-Origin", "*")
                     return response, 200
 
             else:
