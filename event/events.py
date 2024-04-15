@@ -65,16 +65,15 @@ def get_by_id(id):
 @logged_in
 def create_eevent():
 
-    name = request.form["name"]
-    date = request.form["date"]
+    data = request.form
 
     if request.method == "POST":
-        if not name:
+        if not data["name"]:
             error = EVENT_NAME_EMPTY
             response = jsonify(EVENT_NAME_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
             return response, 400
-        elif not date:
+        elif not data["date"]:
             error = EVENT_DATE_EMPTY
             response = jsonify(EVENT_DATE_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
@@ -82,8 +81,16 @@ def create_eevent():
 
         with engine.connect() as conn:
 
-            query = text("INSERT INTO event(name,date) VALUES(:name,:date)")
-            params = dict(name=name, date=date)
+            query = text(
+                "INSERT INTO event(name,date,venue,time,short_description,datetime_created) VALUES(:name,:date,:venue,:time,:short_description,now())"
+            )
+            params = dict(
+                name=data["name"],
+                date=data["date"],
+                venue=data["venue"],
+                time=data["time"],
+                short_description=data["short_description"],
+            )
 
             conn.execute(query, params)
 
