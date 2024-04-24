@@ -10,6 +10,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 
 app.config["SECRET_KEY"] = uuid.uuid4().hex
+app.config["CORS_HEADERS"] = "Content-Type"
 
 CORS(app)
 # blue_prints
