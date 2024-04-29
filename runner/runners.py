@@ -8,7 +8,7 @@ runners = Blueprint("runners", __name__)
 
 
 @runners.route("/")
-@logged_in
+# @logged_in
 def get_all_runners():
 
     runners = []
@@ -29,7 +29,7 @@ def get_all_runners():
 
 
 @runners.route("/<id>")
-@logged_in
+# @logged_in
 def get_one_runner(id):
 
     with engine.connect() as conn:
@@ -44,7 +44,7 @@ def get_one_runner(id):
         return jsonify(output)
 
 
-@logged_in
+# @logged_in
 @runners.route("/<event_id>/registration", methods=["GET", "POST"])
 def registration(event_id):
 

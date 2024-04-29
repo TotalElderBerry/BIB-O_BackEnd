@@ -12,11 +12,10 @@ CORS(events)
 
 # Get all events
 @events.route("/")
-@logged_in
+# @logged_in
 def get_all_events():
 
     events = []
-    error = None
 
     with engine.connect() as conn:
 
@@ -39,7 +38,7 @@ def get_all_events():
 
 # Get events by id
 @events.route("/<id>", methods={"GET", "POST"})
-@logged_in
+# @logged_in
 def get_by_id(id):
 
     if request.method == "GET":
@@ -62,7 +61,7 @@ def get_by_id(id):
 
 # Create events
 @events.route("/create_event", methods=["GET", "POST"])
-@logged_in
+# @logged_in
 def create_eevent():
 
     data = request.form

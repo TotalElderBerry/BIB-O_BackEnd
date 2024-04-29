@@ -11,7 +11,7 @@ CORS(photographer)
 
 
 @photographer.route("/<event_organizer_id>/", methods=["GET"])
-@logged_in
+# @logged_in
 def get_all(event_organizer_id):
     if request.method == "GET":
 
@@ -36,7 +36,7 @@ def get_all(event_organizer_id):
 
 
 @photographer.route("/</event_organizer_id>/<id>")
-@logged_in
+# @logged_in
 def get_by_id(event_organizer_id, id):
 
     with engine.connect() as conn:
@@ -57,7 +57,7 @@ def get_by_id(event_organizer_id, id):
 
 
 @photographer.route("<event_organizer_id>/registration", methods=["GET", "POST"])
-@logged_in
+# @logged_in
 def register_photographer(event_organizer_id):
 
     data = request.form
