@@ -52,6 +52,9 @@ RUNNER_REGISTRATION_SUCCESSFUL = {
 }
 NO_RUNNERS = {"success": False, "message": "No Runners registered at the moment"}
 NO_SINGLE_RUNNER = {"success": False, "message": "Runner doesn't exists"}
+RUNNERS_FETCHED = {"success": True, "message": "Successfully feteched all runners!"}
+ONE_RUNNER_FETHCED = {"success": True, "message": "Successfully feteched a runner!"}
+
 
 # Upload Image
 NO_IMAGES_INSERTED = {"message": "No inserted images"}
