@@ -3,7 +3,8 @@ from database import engine
 from sqlalchemy import text, exc
 from flask import Blueprint, request, jsonify
 from strings import *
-from auth.auth import logged_in
+
+# from auth.auth import logged_in
 
 
 photographer = Blueprint("photographers", __name__)
@@ -35,7 +36,7 @@ def get_all(event_organizer_id):
                     return response, 200
 
 
-@photographer.route("/</event_organizer_id>/<id>")
+@photographer.route("/<event_organizer_id>/<id>")
 # @logged_in
 def get_by_id(event_organizer_id, id):
 
@@ -88,4 +89,6 @@ def register_photographer(event_organizer_id):
             conn.execute(query, params)
 
             conn.commit()
-        return jsonify(PHOTOGRAPHER_REGISTERED_SUCCESSFULLY), 201
+            response = jsonify(PHOTOGRAPHER_REGISTERED_SUCCESSFULLY)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 201
