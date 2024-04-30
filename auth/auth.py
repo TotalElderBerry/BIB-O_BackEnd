@@ -54,5 +54,5 @@ def login():
 
             else:
                 response = jsonify(BAD_CREDENTIALS)
-                response.headers.add("Allow-Control-Cross-Origin", "*")
+                response.headers.add("Access-Control-Allow-Origin", "*")
                 return response, 400
