@@ -28,7 +28,7 @@ def get_all_runners():
             for row in result:
                 runners.append(dict(row._mapping))
 
-                response = jsonify(RUNNER_FETCHED, {"data": runners})
+                response = jsonify(RUNNERS_FETCHED, {"data": runners})
                 response.headers.add("Access-Control-Allow-Origin", "*")
                 return response, 200
 
