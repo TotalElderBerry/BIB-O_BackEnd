@@ -2,7 +2,8 @@ from database import engine
 from flask import Blueprint, session, request, jsonify
 from strings import *
 from sqlalchemy import text
-from auth.auth import logged_in
+
+# from auth.auth import logged_in
 
 runners = Blueprint("runners", __name__)
 
@@ -19,13 +20,17 @@ def get_all_runners():
         result = conn.execute(query)
 
         if not result:
-            return jsonify(NO_RUNNERS)
+            response = jsonify(NO_RUNNERS)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 404
 
         else:
             for row in result:
                 runners.append(dict(row._mapping))
 
-                return jsonify(runners), 200
+                response = jsonify(RUNNER_FETCHED, {"data": runners})
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                return response, 200
 
 
 @runners.route("/<id>")
@@ -39,27 +44,39 @@ def get_one_runner(id):
 
         result = conn.execute(query, params).fetchone()
 
-        output = NO_SINGLE_RUNNER, 404 if result is None else dict(result), 200
+        if result is None:
+            response = jsonify(NO_SINGLE_RUNNER)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 404
 
-        return jsonify(output)
+        else:
+            response = jsonify(ONE_RUNNER_FETHCED, {"data": dict(result)})
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 200
 
 
 # @logged_in
 @runners.route("/<event_id>/registration", methods=["GET", "POST"])
 def registration(event_id):
 
-    error = None
-
     if request.method == "POST":
 
         data = request.form
 
         if not data["first_name"]:
-            return jsonify(FIRST_NAME_EMPTY), 404
+            response = jsonify(FIRST_NAME_EMPTY)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 404
+
         elif not data["last_name"]:
-            return jsonify(LAST_NAME_EMPTY), 404
+            response = jsonify(LAST_NAME_EMPTY)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 404
+
         elif not data["bib_no"]:
-            return jsonify(BIB_NO_EMPTY), 404
+            response = jsonify(BIB_NO_EMPTY)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 404
 
         with engine.connect() as conn:
 
@@ -76,7 +93,9 @@ def registration(event_id):
             conn.execute(query, params)
             conn.commit()
 
-            return jsonify(RUNNER_REGISTRATION_SUCCESSFUL), 201
+            response = jsonify(RUNNER_REGISTRATION_SUCCESSFUL)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 201
 
 
 # update
