@@ -54,7 +54,7 @@ def register(event_id):
 
                 response = jsonify(REGISTRATION_SUCESS)
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                return response
+                return response, 201
 
 
 @event_organizer.route("/login", methods=["GET", "POST"])
