@@ -2,7 +2,7 @@ from database import engine
 from sqlalchemy import text
 from flask import Blueprint, request, jsonify
 from strings import *
-from auth.auth import logged_in
+#from auth.auth import logged_in
 from flask_cors import CORS
 
 
