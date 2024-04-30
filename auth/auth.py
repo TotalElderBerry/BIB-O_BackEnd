@@ -9,17 +9,17 @@ auth = Blueprint("auth", __name__)
 CORS(auth)
 
 
-# def logged_in(f):
-#     @wraps(f)
-#     def decorated_func(*args, **kwargs):
-#         if session.get("logged_in"):
-#             return f(*args, **kwargs)
-#         else:
-#             response = jsonify(UNAUTHORIZED)
-#             response.headers.add("Access-Control-Allow-Origin", "*")
-#             return response, 401
+def logged_in(f):
+    @wraps(f)
+    def decorated_func(*args, **kwargs):
+        if session.get("logged_in"):
+            return f(*args, **kwargs)
+        else:
+            response = jsonify(UNAUTHORIZED)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 401
 
-#     return decorated_func
+    return decorated_func
 
 
 @auth.route("/login", methods=["GET", "POST"])
