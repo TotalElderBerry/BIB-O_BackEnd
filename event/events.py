@@ -2,9 +2,9 @@ from database import engine
 from sqlalchemy import text
 from flask import Blueprint, request, jsonify
 from strings import *
-#from auth.auth import logged_in
-from flask_cors import CORS
 
+# from auth.auth import logged_in
+from flask_cors import CORS
 
 events = Blueprint("events", __name__)
 CORS(events)
@@ -100,5 +100,59 @@ def create_eevent():
 
 
 # Update Event
+@events.route("/update_event/<event_id>", methods=["PUT"])
+def update_event(event_id):
+
+    data = request.form
+
+    with engine.connect() as conn:
+
+        query = text(
+            "UPDATE event SET name = :name, date = :date, venue = :venue, time = :time, short_description = :short_description, no_of_participants = :no_of_participants, status = :status WHERE id = :id"
+        )
+
+        params = dict(
+            id=event_id,
+            name=data["name"],
+            date=data["date"],
+            venue=data["venue"],
+            time=data["time"],
+            short_description=data["short_description"],
+            no_of_participants=data["no_of_participants"],
+            status=data["status"],
+        )
+        result = conn.execute(query, params)
+
+        conn.commit()
+
+        if result.rowcount > 0:
+            response = jsonify(UPDATE_EVENT)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 200
+        else:
+            response = jsonify(FAILED_UPDATE)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 400
+
 
 # Delete Event
+@events.route("/delete_event/<event_id>", methods=["DELETE"])
+def delete_event(event_id):
+
+    with engine.connect() as conn:
+
+        query = text("DELETE from event WHERE id = :id")
+        params = dict(id=event_id)
+
+        result = conn.execute(query, params)
+
+        conn.commit()
+
+        if result.rowcount > 0:
+            response = jsonify(DELETED_EVENT)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 200
+        else:
+            response = jsonify(FAILED_DELETE)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 400

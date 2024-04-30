@@ -28,6 +28,11 @@ EVENT_DATE_EMPTY = {"success": False, "message": "Event date is required!"}
 EVENT_EXISTS = {"success": False, "message": "Event already existed!"}
 EVENT_SUCESS = {"success": True, "message": "Event created sucessfully!"}
 EVENT_RETRIEVED = {"success": True, "message": "Events retrieved successfully"}
+UPDATE_EVENT = {"succces": True, "message": "Update event successfully!"}
+FAILED_UPDATE = {"succces": False, "message": "Unable to update event!!"}
+DELETED_EVENT = {"success": True, "message": "Successfully deleted event!"}
+FAILED_DELETE = {"success": False, "message": "Unable to delete event!"}
+
 
 # Photographer
 PHOTOGRAPHER_EXISTS = {"success": False, "message": "Photographer already registered!"}
