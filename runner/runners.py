@@ -8,16 +8,16 @@ from sqlalchemy import text
 runners = Blueprint("runners", __name__)
 
 
-@runners.route("/")
+@runners.route("/<event_id>")
 # @logged_in
-def get_all_runners():
+def get_all_runners(event_id):
 
     runners = []
     with engine.connect() as conn:
 
-        query = text("SELECT * FROM runner")
-
-        result = conn.execute(query)
+        query = text("SELECT * FROM runner WHERE event_id = :event_id")
+        params = dict(event_id=event_id)
+        result = conn.execute(query, params)
 
         if not result:
             response = jsonify(NO_RUNNERS)
@@ -33,14 +33,14 @@ def get_all_runners():
                 return response, 200
 
 
-@runners.route("/<id>")
+@runners.route("/<event_id>/<id>")
 # @logged_in
-def get_one_runner(id):
+def get_one_runner(id, event_id):
 
     with engine.connect() as conn:
 
-        query = text("SELECT * FROM runner where id = :id")
-        params = dict(id=id)
+        query = text("SELECT * FROM runner where id = :id AND event_id = event_id")
+        params = dict(id=id, event_id=event_id)
 
         result = conn.execute(query, params).fetchone()
 
