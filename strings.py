@@ -55,6 +55,8 @@ RUNNER_REGISTRATION_SUCCESSFUL = {
     "success": True,
     "message": "Runner registered sucessfully!",
 }
+RUNNER_REGISTRATION_FAILED = {"success": False, "message": "Registration unsuccessful"}
+MAX_REGISTRATION = {"success": False, "message": "Registration is closed"}
 NO_RUNNERS = {"success": False, "message": "No Runners registered at the moment"}
 NO_SINGLE_RUNNER = {"success": False, "message": "Runner doesn't exists"}
 RUNNERS_FETCHED = {"success": True, "message": "Successfully feteched all runners!"}

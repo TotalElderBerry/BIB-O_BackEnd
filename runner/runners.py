@@ -61,6 +61,7 @@ def registration(event_id):
 
     if request.method == "POST":
 
+        counter = 0
         data = request.form
 
         if not data["first_name"]:
@@ -80,22 +81,59 @@ def registration(event_id):
 
         with engine.connect() as conn:
 
-            query = text(
-                "INSERT INTO runner(event_id,last_name,first_name,bib_no) VALUES (:event_id,:ln, :fn, :bib)"
+            query_no_participants = text(
+                "SELECT no_of_participants, current_no_of_participants FROM event WHERE id = :id"
             )
-            params = dict(
-                event_id=event_id,
-                ln=data["last_name"],
-                fn=data["first_name"],
-                bib=data["bib_no"],
-            )
+            params = dict(id=event_id)
 
-            conn.execute(query, params)
-            conn.commit()
+            query_result = conn.execute(query_no_participants, params).fetchone()
 
-            response = jsonify(RUNNER_REGISTRATION_SUCCESSFUL)
-            response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 201
+            if query_result is None:
+
+                response = jsonify(NO_SINGLE_RUNNER)
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                return response, 404
+
+            else:
+                no_of_participants, current_no_of_participants = query_result
+
+                if current_no_of_participants <= no_of_participants:
+
+                    query = text(
+                        "INSERT INTO runner(event_id,last_name,first_name,bib_no) VALUES (:event_id,:ln, :fn, :bib)"
+                    )
+                    params = dict(
+                        event_id=event_id,
+                        ln=data["last_name"],
+                        fn=data["first_name"],
+                        bib=data["bib_no"],
+                    )
+
+                    result = conn.execute(query, params)
+
+                    if result.rowcount > 0:
+
+                        counter += 1
+
+                        update_query = text(
+                            "UPDATE event SET current_no_of_participants = :counter WHERE id = :event_id"
+                        )
+                        conn.execute(update_query, dict(event_id=event_id))
+                        conn.commit()
+
+                        response = jsonify(RUNNER_REGISTRATION_SUCCESSFUL)
+                        response.headers.add("Access-Control-Allow-Origin", "*")
+                        return response, 201
+
+                elif current_no_of_participants > no_of_participants:
+
+                    response = jsonify(MAX_REGISTRATION)
+                    response.headers.add("Access-Control-Allow-Origin", "*")
+                    return response, 200
+                else:
+                    response = jsonify(RUNNER_REGISTRATION_FAILED)
+                    response.headers.add("Access-Control-Allow-Origin", "*")
+                    return response, 400
 
 
 # update
