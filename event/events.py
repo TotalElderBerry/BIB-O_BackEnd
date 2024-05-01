@@ -1,3 +1,5 @@
+# from datetime import dateti
+from datetime import datetime, timedelta
 from database import engine
 from sqlalchemy import text
 from flask import Blueprint, request, jsonify
@@ -68,12 +70,11 @@ def create_eevent():
 
     if request.method == "POST":
         if not data["name"]:
-            error = EVENT_NAME_EMPTY
+
             response = jsonify(EVENT_NAME_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
             return response, 400
         elif not data["date"]:
-            error = EVENT_DATE_EMPTY
             response = jsonify(EVENT_DATE_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
             return response, 400
@@ -81,14 +82,16 @@ def create_eevent():
         with engine.connect() as conn:
 
             query = text(
-                "INSERT INTO event(name,date,venue,time,short_description,datetime_created) VALUES(:name,:date,:venue,:time,:short_description,now())"
+                "INSERT INTO event(name,date,venue,time_start,time_end,short_description,no_of_participants,datetime_created) VALUES(:name,:date,:venue,:time,:short_description,now())"
             )
             params = dict(
                 name=data["name"],
                 date=data["date"],
                 venue=data["venue"],
-                time=data["time"],
+                time_start=data["time_start"],
+                time_end=data["time_end"],
                 short_description=data["short_description"],
+                no_of_participants=data["no_of_participants"],
             )
 
             conn.execute(query, params)
@@ -105,10 +108,31 @@ def update_event(event_id):
 
     data = request.form
 
+    current_date = datetime.now().date
+    current_time = datetime.now().time
+
+    event_date = datetime.strptime(data["date"], "%Y-%m-%d").date()
+    event_time_start = datetime.strptime(data["time_start"], "%H:%M:%S").time()
+    event_time_end = datetime.strptime(data["time_end"], "%H:%M:%S").time()
+
+    combined_current_datetime = datetime.combine(current_date, current_time)
+    combined_event_datetime = datetime.combine(event_date, event_time_end)
+
+    if combined_current_datetime > combined_event_datetime:
+        data["status"] = "Finished"
+
+    elif (
+        current_date == event_date
+        and current_time >= event_time_start
+        and current_time <= event_time_end
+    ):
+        data["status"] = "Ongoing"
+        
+
     with engine.connect() as conn:
 
         query = text(
-            "UPDATE event SET name = :name, date = :date, venue = :venue, time = :time, short_description = :short_description, no_of_participants = :no_of_participants, status = :status WHERE id = :id"
+            "UPDATE event SET name = :name, date = :date, venue = :venue, time_start = :time_start, time_end = :time_end, short_description = :short_description, no_of_participants = :no_of_participants, status = :status WHERE id = :id"
         )
 
         params = dict(
@@ -116,10 +140,10 @@ def update_event(event_id):
             name=data["name"],
             date=data["date"],
             venue=data["venue"],
-            time=data["time"],
+            time_start=data["time_start"],
+            time_end=data["time_end"],
             short_description=data["short_description"],
             no_of_participants=data["no_of_participants"],
-            status=data["status"],
         )
         result = conn.execute(query, params)
 
