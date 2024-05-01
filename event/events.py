@@ -127,7 +127,7 @@ def update_event(event_id):
         and current_time <= event_time_end
     ):
         data["status"] = "Ongoing"
-        
+
 
     with engine.connect() as conn:
 

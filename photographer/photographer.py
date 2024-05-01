@@ -57,7 +57,7 @@ def get_by_id(event_organizer_id, id):
             return response, 200
 
 
-@photographer.route("<event_organizer_id>/registration", methods=["GET", "POST"])
+@photographer.route("/<event_organizer_id>/registration", methods=["GET", "POST"])
 # @logged_in
 def register_photographer(event_organizer_id):
 
