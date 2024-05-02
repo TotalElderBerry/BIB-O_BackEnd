@@ -28,7 +28,7 @@ EVENT_DATE_EMPTY = {"success": False, "message": "Event date is required!"}
 EVENT_EXISTS = {"success": False, "message": "Event already existed!"}
 EVENT_SUCESS = {"success": True, "message": "Event created sucessfully!"}
 EVENT_RETRIEVED = {"success": True, "message": "Events retrieved successfully"}
-UPDATE_EVENT = {"succces": True, "message": "Update event successfully!"}
+UPDATE_EVENT = {"succces": True, "message": "Updated event successfully!"}
 FAILED_UPDATE = {"succces": False, "message": "Unable to update event!!"}
 DELETED_EVENT = {"success": True, "message": "Successfully deleted event!"}
 FAILED_DELETE = {"success": False, "message": "Unable to delete event!"}
@@ -61,6 +61,10 @@ NO_RUNNERS = {"success": False, "message": "No Runners registered at the moment"
 NO_SINGLE_RUNNER = {"success": False, "message": "Runner doesn't exists"}
 RUNNERS_FETCHED = {"success": True, "message": "Successfully feteched all runners!"}
 ONE_RUNNER_FETHCED = {"success": True, "message": "Successfully feteched a runner!"}
+UPDATED_RUNNER = {"success": True, "message": "Updated Runner Successfully"}
+FAILED_UPDATE_RUNNER = {"succces": False, "message": "Unable to update Runner!!"}
+DELETED_RUNNER = {"success": True, "message": "Successfully deleted Runner!"}
+FAILED_DELETE_RUNNER = {"success": False, "message": "Unable to delete Runner!"}
 
 
 # Upload Image

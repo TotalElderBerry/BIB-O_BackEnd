@@ -136,6 +136,59 @@ def registration(event_id):
                     return response, 400
 
 
-# update
+# Update Event
+@runners.route("/update_runner/<event_id>/<id>", methods=["PUT"])
+def update_runner(event_id, id):
 
-# delete
+    data = request.form
+
+    with engine.connect() as conn:
+
+        query = text(
+            "UPDATE runner SET last_name = :lname, first_name = :fname, bib_no = :bib WHERE event_id = :e_id AND id = :id"
+        )
+
+        params = dict(
+            id=id,
+            e_id=event_id,
+            lname=data["last_name"],
+            fname=data["first_name"],
+            bib=data["bib_no"],
+        )
+        result = conn.execute(query, params)
+
+        conn.commit()
+        if result.rowcount > 0:
+
+            response = jsonify(UPDATED_RUNNER)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+
+            return response, 200
+
+        else:
+            response = jsonify(FAILED_UPDATE)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+
+            return response, 400
+
+
+runners.route("/delete_runner/<event_id>/<id>")
+
+
+def delete_runner(event_id, id):
+
+    with engine.connect() as conn:
+
+        query = text("DELETE FROM runner WHERE event_id = :e_id AND id = :id")
+        params = dict(id=id, e_id=event_id)
+
+        result = conn.execute(query, params)
+
+        conn.commit()
+
+        if result.rowcount > 0:
+
+            response = jsonify(DELETED_RUNNER)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+
+            return response, 400
