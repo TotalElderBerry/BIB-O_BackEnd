@@ -1,9 +1,10 @@
-# from datetime import dateti
-from datetime import datetime, timedelta
+import os
+from datetime import datetime
 from database import engine
 from sqlalchemy import text
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from strings import *
+from slugify import slugify
 
 # from auth.auth import logged_in
 from flask_cors import CORS
@@ -67,24 +68,29 @@ def get_by_id(id):
 def create_eevent():
 
     data = request.form
+    event_slug = slugify(data["name"])
 
     if request.method == "POST":
         if not data["name"]:
-
             response = jsonify(EVENT_NAME_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
             return response, 400
+
         elif not data["date"]:
             response = jsonify(EVENT_DATE_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
             return response, 400
 
+        folder_path = os.path.join(current_app.static_folder, "gallery", event_slug)
+        os.makedirs(folder_path, exist_ok=True)
+
         with engine.connect() as conn:
 
             query = text(
-                "INSERT INTO event(name,date,venue,time_start,time_end,short_description,no_of_participants,datetime_created) VALUES(:name,:date,:venue,:time,:short_description,now())"
+                "INSERT INTO event(slug, name,date,venue,time_start,time_end,short_description,no_of_participants,datetime_created) VALUES(:slug,:name,:date,:venue,:time_start,:time_end,:short_description,:no_of_participants,now())"
             )
             params = dict(
+                slug=event_slug,
                 name=data["name"],
                 date=data["date"],
                 venue=data["venue"],
@@ -127,7 +133,6 @@ def update_event(event_id):
         and current_time <= event_time_end
     ):
         data["status"] = "Ongoing"
-
 
     with engine.connect() as conn:
 
