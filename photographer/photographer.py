@@ -20,9 +20,10 @@ def get_all(event_organizer_id):
 
         with engine.connect() as conn:
 
-            query = text("SELECT * FROM photograph")
+            query = text("SELECT * FROM photograph WHERE event_organizer_id = :eo_id")
+            params = dict(eo_id=event_organizer_id)
 
-            result = conn.execute(query).fetchall()
+            result = conn.execute(query, params).fetchall()
 
             if query is None:
                 response = jsonify(NO_PHOTOGRAPHERS)
@@ -42,8 +43,10 @@ def get_by_id(event_organizer_id, id):
 
     with engine.connect() as conn:
 
-        query = text("SELECT * FROM photographer WHERE id = :id")
-        params = dict(id=id)
+        query = text(
+            "SELECT * FROM photographer WHERE id = :id AND event_organizer_id = eo_id"
+        )
+        params = dict(id=id, eo_id=event_organizer_id)
 
         result = conn.execute(query, params).fetchone()
 
