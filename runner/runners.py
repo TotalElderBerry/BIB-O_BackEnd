@@ -61,7 +61,6 @@ def registration(event_id):
 
     if request.method == "POST":
 
-        counter = 0
         data = request.form
 
         if not data["first_name"]:
@@ -100,7 +99,7 @@ def registration(event_id):
                 if current_no_of_participants <= no_of_participants:
 
                     query = text(
-                        "INSERT INTO runner(event_id,last_name,first_name,bib_no) VALUES (:event_id,:ln, :fn, :bib)"
+                        "INSERT INTO runner(event_id,last_name,first_name,bib_no, datetime_created) VALUES (:event_id,:ln, :fn, :bib, now())"
                     )
                     params = dict(
                         event_id=event_id,
@@ -113,12 +112,11 @@ def registration(event_id):
 
                     if result.rowcount > 0:
 
-                        counter += 1
-
                         update_query = text(
-                            "UPDATE event SET current_no_of_participants = :counter WHERE id = :event_id"
+                            "UPDATE event SET current_no_of_participants = current_no_of_participants + 1 WHERE id = :event_id"
                         )
-                        conn.execute(update_query, dict(event_id=event_id))
+                        params = dict(event_id=event_id)
+                        result = conn.execute(update_query, params)
                         conn.commit()
 
                         response = jsonify(RUNNER_REGISTRATION_SUCCESSFUL)
