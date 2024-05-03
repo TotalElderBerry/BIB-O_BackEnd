@@ -17,7 +17,8 @@ def logged_in(f):
         else:
             response = jsonify(UNAUTHORIZED)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 401
+            response.status_code = 401
+            return response
 
     return decorated_func
 
@@ -42,18 +43,21 @@ def event_organizer_login():
                 if password != result[4]:
                     response = jsonify(INVALID_PASSWORD)
                     response.headers.add("Access-Control-Allow-Origin", "*")
-                    return response, 404
+                    response.status_code = 404
+                    return response
                 else:
                     session.clear()
                     session["email"] = result[3]
                     response = jsonify(LOGIN_SUCESS)
                     response.headers.add("Access-Control-Allow-Origin", "*")
-                    return response, 200
+                    response.status_code = 200
+                    return response
 
             else:
                 response = jsonify(BAD_CREDENTIALS)
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 404
+                response.status_code = 404
+                return response
 
 
 @auth.route("/photographer/login", methods=["GET", "POST"])
@@ -76,18 +80,21 @@ def photographer_login():
                 if password != result[4]:
                     response = jsonify(INVALID_PASSWORD)
                     response.headers.add("Access-Control-Allow-Origin", "*")
-                    return response, 404
+                    response.status_code = 404
+                    return response
                 else:
                     session.clear()
                     session["email"] = result[3]
                     response = jsonify(LOGIN_SUCESS)
                     response.headers.add("Access-Control-Allow-Origin", "*")
-                    return response, 200
+                    response.status_code = 200
+                    return response
 
             else:
                 response = jsonify(BAD_CREDENTIALS)
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 404
+                response.status_code = 404
+                return response
 
 
 @auth.route("/logout", methods=["POST"])
@@ -95,4 +102,5 @@ def logout():
     session.pop("email", None)
     response = jsonify(LOGOUT_SUCESS)
     response.headers.add("Access-Control-Allow-Origin", "*")
-    return response, 200
+    response.status_code = 200
+    return response

@@ -27,13 +27,15 @@ def get_all():
             if query is None:
                 response = jsonify(NO_PHOTOGRAPHERS)
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 400
+                response.status_code = 404
+                return response
             else:
                 for row in result:
                     photographers.append(dict(row._mapping))
                     response = jsonify(GET_PHOTOGRAPHERS, {"data": photographers})
                     response.headers.add("Access-Control-Allow-Origin", "*")
-                    return response, 200
+                    response.status_code = 200
+                    return response
 
 
 @photographer.route("/<id>")
@@ -50,11 +52,13 @@ def get_by_id(id):
         if query is None:
             response = jsonify(NO_PHOTOGRAPHERS)
             response.headers.add("Acccess-Control-Allow-Origin", "*")
-            return response, 400
+            response.status_code = 404
+            return response
         else:
             response = jsonify(GET_PHOTOGRAPHERS, {"data": dict(result)})
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 200
+            response.status_code = 200
+            return response
 
 
 @photographer.route("/registration", methods=["GET", "POST"])
@@ -65,11 +69,20 @@ def register_photographer():
 
     if request.method == "POST":
         if data["name"] is None:
-            return jsonify(NAME_EMPTY), 404
+            response = jsonify(NAME_EMPTY)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.status_code = 400
+            return response
         elif data["address"] is None:
-            return jsonify(ADDRESS_EMPTY), 404
+            response = jsonify(ADDRESS_EMPTY)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.status_code = 400
+            return response
         elif data["email"] is None:
-            return jsonify(EMAIL_EMPTY), 404
+            response = jsonify(EMAIL_EMPTY)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.status_code = 400
+            return response
 
         with engine.connect() as conn:
             query = text(
@@ -91,13 +104,15 @@ def register_photographer():
 
                 response = jsonify(PHOTOGRAPHER_REGISTERED_SUCCESSFULLY)
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 201
+                response.status_code = 201
+                return response
 
             else:
 
                 response = jsonify(FAILED_REGISTRATION_PHOTOGRAPHER)
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 400
+                response.status_code = 400
+                return response
 
 
 @photographer.route("/update/<id>")
@@ -125,9 +140,11 @@ def update_event_organizer(id):
         if result.rowcount > 0:
             response = jsonify(UPDATE_PHOTOGRAPHER_SUCCESS)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 200
+            response.status_code = 200
+            return response
         else:
 
             response = jsonify(UPDATE_PHOTOGRAPHER_UNSUCCESSFUL)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 400
+            response.status_code = 400
+            return response

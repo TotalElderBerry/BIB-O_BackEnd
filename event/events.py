@@ -29,14 +29,16 @@ def get_all_events():
         if not result:
             response = jsonify(NO_EVENTS)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 400
+            response.status_code = 404
+            return response
         else:
 
             for row in result:
                 events.append(dict(row._mapping))
                 response = jsonify(FETCHED_EVENTS, {"data": events})
                 response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 200
+                response.status_code = 200
+            return response
 
 
 # Get events by id
@@ -55,11 +57,13 @@ def get_by_id(id):
             if result is None:
                 response = jsonify(NO_EVENTS)
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 400
+                response.status_code = 400
+                return response
             else:
                 response = jsonify(EVENT_RETRIEVED, {"data": dict(result._mapping)})
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 200
+                response.status_code = 200
+                return response
 
 
 # Create events
@@ -74,12 +78,14 @@ def create_event(event_organizer_id):
         if not data["name"]:
             response = jsonify(EVENT_NAME_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 400
+            response.status_code = 400
+            return response
 
         elif not data["date"]:
             response = jsonify(EVENT_DATE_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 400
+            response.status_code = 400
+            return response
 
         folder_path = os.path.join(current_app.static_folder, "gallery", event_slug)
         os.makedirs(folder_path, exist_ok=True)
@@ -108,11 +114,13 @@ def create_event(event_organizer_id):
             if result.rowcount > 0:
                 response = jsonify(EVENT_SUCCESS)
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 201
+                response.status_code = 201
+                return response
             else:
                 response = jsonify(EVENT_FAILED)
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 400
+                response.status_code = 400
+                return response
 
 
 # Update Event
@@ -165,11 +173,13 @@ def update_event(event_organizer_id, event_id):
         if result.rowcount > 0:
             response = jsonify(UPDATE_EVENT)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 200
+            response.status_code = 200
+            return response
         else:
             response = jsonify(FAILED_UPDATE)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 400
+            response.status_code = 400
+            return response
 
 
 # Delete Event
@@ -188,8 +198,10 @@ def delete_event(event_id, event_organizer_id):
         if result.rowcount > 0:
             response = jsonify(DELETED_EVENT)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 200
+            response.status_code = 200
+            return response
         else:
             response = jsonify(FAILED_DELETE)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 400
+            response.status_code = 400
+            return response

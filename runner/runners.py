@@ -22,7 +22,8 @@ def get_all_runners(event_id):
         if not result:
             response = jsonify(NO_RUNNERS)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 404
+            response.status_code = 404
+            return response
 
         else:
             for row in result:
@@ -30,7 +31,8 @@ def get_all_runners(event_id):
 
                 response = jsonify(RUNNERS_FETCHED, {"data": runners})
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 200
+                response.status_code = 200
+                return response
 
 
 @runners.route("/<event_id>/<id>")
@@ -47,12 +49,14 @@ def get_one_runner(id, event_id):
         if result is None:
             response = jsonify(NO_SINGLE_RUNNER)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 404
+            response.status_code = 404
+            return response
 
         else:
             response = jsonify(ONE_RUNNER_FETHCED, {"data": dict(result)})
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 200
+            response.status_code = 200
+            return response
 
 
 # @logged_in
@@ -66,17 +70,20 @@ def registration(event_id):
         if not data["first_name"]:
             response = jsonify(FIRST_NAME_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 404
+            response.status_code = 400
+            return response
 
         elif not data["last_name"]:
             response = jsonify(LAST_NAME_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 404
+            response.status_code = 400
+            return (response,)
 
         elif not data["bib_no"]:
             response = jsonify(BIB_NO_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 404
+            response.status_code = 400
+            return (response,)
 
         with engine.connect() as conn:
 
@@ -91,7 +98,8 @@ def registration(event_id):
 
                 response = jsonify(NO_SINGLE_RUNNER)
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 404
+                response.status_code = 404
+                return response
 
             else:
                 no_of_participants, current_no_of_participants = query_result
@@ -121,17 +129,20 @@ def registration(event_id):
 
                         response = jsonify(RUNNER_REGISTRATION_SUCCESSFUL)
                         response.headers.add("Access-Control-Allow-Origin", "*")
-                        return response, 201
+                        response.status_code = 201
+                        return response
 
                 elif current_no_of_participants > no_of_participants:
 
                     response = jsonify(MAX_REGISTRATION)
                     response.headers.add("Access-Control-Allow-Origin", "*")
-                    return response, 200
+                    response.status_code = 200
+                    return response
                 else:
                     response = jsonify(RUNNER_REGISTRATION_FAILED)
                     response.headers.add("Access-Control-Allow-Origin", "*")
-                    return response, 400
+                    response.status_code = 400
+                    return response
 
 
 # Update Event
@@ -161,13 +172,14 @@ def update_runner(event_id, id):
             response = jsonify(UPDATED_RUNNER)
             response.headers.add("Access-Control-Allow-Origin", "*")
 
-            return response, 200
+            response.status_code = 200
+            return response
 
         else:
             response = jsonify(FAILED_UPDATE)
             response.headers.add("Access-Control-Allow-Origin", "*")
-
-            return response, 400
+            response.status_code = 400
+            return response
 
 
 runners.route("/delete_runner/<event_id>/<id>")
@@ -188,5 +200,11 @@ def delete_runner(event_id, id):
 
             response = jsonify(DELETED_RUNNER)
             response.headers.add("Access-Control-Allow-Origin", "*")
+            response.status_code = 400
+            return response
+        else:
 
-            return response, 400
+            response = jsonify(FAILED_DELETE_RUNNER)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.status_code = 400
+            return response

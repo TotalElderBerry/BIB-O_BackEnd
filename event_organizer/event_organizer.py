@@ -17,18 +17,22 @@ def register():
         if data["name"] is None:
             response = jsonify(NAME_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 404
+            response.status_code = 400
+            return response
         elif data["address"] is None:
             response = jsonify(ADDRESS_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 404
+            response.status_code = 400
+            return response
         elif data["email"] is None:
             response = jsonify(EMAIL_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 404
+            response.status_code = 400
+            return response
         elif data["password"] is None:
             response = jsonify(PASSWORD_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
+            response.status_code = 400
             return response
 
         if error is None:
@@ -50,11 +54,13 @@ def register():
                 if result.rowcount > 0:
                     response = jsonify(REGISTRATION_SUCCESS)
                     response.headers.add("Access-Control-Allow-Origin", "*")
-                    return response, 201
+                    response.status_code = 201
+                    return response
                 else:
                     response = jsonify(REGISTRATION_UNSUCCESSFUL)
                     response.headers.add("Access-Control-Allow-Origin", "*")
-                    return response, 400
+                    response.status_code = 400
+                    return response
 
 
 # Update
@@ -85,9 +91,11 @@ def update_event_organizer(id):
         if result.rowcount > 0:
             response = jsonify(UPDATE_EVENT_ORGANIZER_SUCCESS)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 200
+            response.status_code = 200
+            return response
         else:
 
             response = jsonify(UPDATE_EVENT_ORGANIZER_UNSUCCESSFUL)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 400
+            response.status_code = 400
+            return response

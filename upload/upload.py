@@ -54,20 +54,22 @@ def multi_images():
 
         response = jsonify({"success": True, "message": "Uploaded successfully"})
         response.headers.add("Allow-Access-Control-Origin", "*")
-        return response, 201
+        response.status_code = 201
+        return response
 
     if request.method == "GET":
 
         event_slug = request.args.get("event_slug")
         query = request.args.get("query")
 
-    filenames = images(event_slug, query)
-    response_data = {
-        "success": True,
-        "message": "Fetched successfully",
-        "data": filenames,
-    }
+        filenames = images(event_slug, query)
+        response_data = {
+            "success": True,
+            "message": "Fetched successfully",
+            "data": filenames,
+        }
 
-    response = jsonify(response_data)
-    response.headers.add("Allow-Access-Control-Origin", "*")
-    return response, 301
+        response = jsonify(response_data)
+        response.headers.add("Allow-Access-Control-Origin", "*")
+        response.status_code = 200
+        return response
