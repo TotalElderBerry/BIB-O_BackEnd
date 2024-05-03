@@ -21,12 +21,14 @@ STATUS_EMPTY = {"success": False, "message": "Status is required!"}
 EMAIL_EXISTS = {"success": False, "message": "Username already exists!"}
 
 # Events
+FETCHED_EVENTS = {"success": True, "message": "Fetched Events successfully!"}
 NO_EVENTS = {"success": False, "message": "No Events at the moment"}
 EVENT_DOESNT_EXIST = {"success": False, "message": "Event does not exist."}
 EVENT_NAME_EMPTY = {"success": False, "message": "Event name is required!"}
 EVENT_DATE_EMPTY = {"success": False, "message": "Event date is required!"}
 EVENT_EXISTS = {"success": False, "message": "Event already existed!"}
-EVENT_SUCESS = {"success": True, "message": "Event created sucessfully!"}
+EVENT_SUCCESS = {"success": True, "message": "Event created successfully!"}
+EVENT_FAILED = {"success": False, "message": "Unable to create event"}
 EVENT_RETRIEVED = {"success": True, "message": "Events retrieved successfully"}
 UPDATE_EVENT = {"succces": True, "message": "Updated event successfully!"}
 FAILED_UPDATE = {"succces": False, "message": "Unable to update event!!"}
@@ -44,6 +46,10 @@ GET_PHOTOGRAPHERS = {"success": True, "message": "Photographers retrieved succes
 NO_PHOTOGRAPHERS = {
     "success": False,
     "message": "No registered photographers at the moment",
+}
+FAILED_REGISTRATION_PHOTOGRAPHER = {
+    "success": False,
+    "message": "unable to register photographer",
 }
 
 
