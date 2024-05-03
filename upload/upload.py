@@ -9,20 +9,23 @@ upload_images = Blueprint("upload", __name__)
 CORS(upload_images)
 
 
-current_app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
-
 ALLOWED_EXTENSIONS = set(["txt", "pdf", "png", "jpg", "jpeg", "gif"])
 
-path = os.getcwd()
-# file Upload
-UPLOAD_FOLDER = os.path.join(path, "gallery")
 
-# Make directory if uploads is not exists
-if not os.path.isdir(UPLOAD_FOLDER):
-    os.mkdir(UPLOAD_FOLDER)
+def initialize_upload_folder():
+    path = os.getcwd()
+    UPLOAD_FOLDER = os.path.join(path, "gallery")
+
+    if not os.path.isdir(UPLOAD_FOLDER):
+        os.mkdir(UPLOAD_FOLDER)
+
+    current_app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+    current_app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 
 
-current_app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+@upload_images.before_app_request
+def before_first_request_func():
+    initialize_upload_folder()
 
 
 def allowed_file(filename):
