@@ -4,15 +4,16 @@ from database import engine
 from sqlalchemy import text
 from strings import *
 
-event_organizer = Blueprint("event_organizer", __name__, template_folder="templates")
+event_organizer = Blueprint("event_organizer", __name__)
 
 
-@event_organizer.route("/<event_id>/register", methods=["GET", "POST"])
-def register(event_id):
-    data = request.form()
+@event_organizer.route("/register", methods=["GET", "POST"])
+def register():
+    data = request.form
     error = None
 
     if request.method == "POST":
+
         if data["name"] is None:
             response = jsonify(NAME_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
@@ -29,76 +30,64 @@ def register(event_id):
             response = jsonify(PASSWORD_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
             return response
-        elif data["status"] is None:
-            response = jsonify(STATUS_EMPTY)
-            response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 404
 
         if error is None:
             with engine.connect() as conn:
 
                 query = text(
-                    "INSERT INTO event_organizer(event_id,name,address,email,password,status) VALUE (:event_id,:name,:address,:email,:password,:status)"
+                    "INSERT INTO event_organizer(name,address,email,password,datetime_created) VALUE (:name,:address,:email,:password, now())"
                 )
                 params = dict(
-                    event_id=event_id,
                     name=data["name"],
                     address=data["address"],
                     email=data["email"],
                     password=data["password"],
-                    status=data["status"],
                 )
 
-                conn.execute(query, params)
+                result = conn.execute(query, params)
                 conn.commit()
 
-                response = jsonify(REGISTRATION_SUCESS)
-                response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 201
+                if result.rowcount > 0:
+                    response = jsonify(REGISTRATION_SUCCESS)
+                    response.headers.add("Access-Control-Allow-Origin", "*")
+                    return response, 201
+                else:
+                    response = jsonify(REGISTRATION_UNSUCCESSFUL)
+                    response.headers.add("Access-Control-Allow-Origin", "*")
+                    return response, 400
 
 
-@event_organizer.route("/login", methods=["GET", "POST"])
-def login():
+# Update
 
-    if request.method == "POST":
-        email = request.form["email"]
-        password = request.form["password"]
 
-        with engine.connect() as conn:
+@event_organizer.route("/update/<id>")
+def update_event_organizer(id):
 
-            query = text("SELECT * FROM event_organizer WHERE email = :email")
-            params = dict(email=email)
+    data = request.form
 
-            result = conn.execute(query, params).fetchone()
-            rows = result
+    with engine.connect() as conn:
 
-        if result is not None:
-            if password != result[5]:
-                response = jsonify(INVALID_PASSWORD)
-                response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 400
+        query = text(
+            "UPDATE event_organizer SET name = :name, address = :address, email =:email, password = :password WHERE id = :id"
+        )
+        params = dict(
+            id=id,
+            name=data["name"],
+            address=data["address"],
+            email=data["email"],
+            password=data["password"],
+        )
 
-            else:
-                session.clear()
-                session["email"] = result[4]
-                response = jsonify(LOGIN_SUCESS, {"data": dict(rows._mapping)})
-                response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 200
+        result = conn.execute(query, params)
 
-        else:
-            response = jsonify(BAD_CREDENTIALS)
+        conn.commit()
+
+        if result.rowcount > 0:
+            response = jsonify(UPDATE_EVENT_ORGANIZER_SUCCESS)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 401
+            return response, 200
+        else:
 
-
-@event_organizer.route("/logout")
-def logout():
-    session.pop("email", None)
-    response = jsonify(LOGOUT_SUCESS)
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    return response, 200
-
-
-# Update Event
-
-# Delete Event
+            response = jsonify(UPDATE_EVENT_ORGANIZER_UNSUCCESSFUL)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 400

@@ -7,7 +7,8 @@ INVALID_EMAIL = {"success": False, "message": "Email is Incorrect!"}
 
 LOGIN_SUCESS = {"success": True, "message": "Login Sucess!"}
 LOGOUT_SUCESS = {"success": True, "message": "Logout Sucessfully!"}
-REGISTRATION_SUCESS = {"success": True, "message": "Registered Sucessfully!"}
+REGISTRATION_SUCCESS = {"success": True, "message": "Registered Sucessfully!"}
+REGISTRATION_UNSUCCESSFUL = {"success": False, "message": "Registration Unsuccessful"}
 BAD_CREDENTIALS = {"success": False, "message": "Bad Credentials"}
 UNAUTHORIZED = {"success": False, "message": "Unauthorized access"}
 
@@ -19,7 +20,8 @@ EMAIL_EMPTY = {"success": False, "message": "Email is required!"}
 PASSWORD_EMPTY = {"success": False, "message": "Password is required!"}
 STATUS_EMPTY = {"success": False, "message": "Status is required!"}
 EMAIL_EXISTS = {"success": False, "message": "Username already exists!"}
-
+UPDATE_EVENT_ORGANIZER_SUCCESS = {"success": True, "message": "Updated successfully!"}
+UPDATE_EVENT_ORGANIZER_UNSUCCESSFUL = {"success": False, "message": "Update failed!"}
 # Events
 FETCHED_EVENTS = {"success": True, "message": "Fetched Events successfully!"}
 NO_EVENTS = {"success": False, "message": "No Events at the moment"}
