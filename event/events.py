@@ -34,7 +34,7 @@ def get_all_events():
 
             for row in result:
                 events.append(dict(row._mapping))
-                response = jsonify(EVENT_EXISTS, {"data": events})
+                response = jsonify(FETCHED_EVENTS, {"data": events})
                 response.headers.add("Access-Control-Allow-Origin", "*")
             return response, 200
 
@@ -55,17 +55,17 @@ def get_by_id(id):
             if result is None:
                 response = jsonify(NO_EVENTS)
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                return jsonify(response), 400
+                return response, 400
             else:
-                response = jsonify(EVENT_RETRIEVED, {"data": dict(result)})
+                response = jsonify(EVENT_RETRIEVED, {"data": dict(result._mapping)})
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                return jsonify(response), 200
+                return response, 200
 
 
 # Create events
-@events.route("/create_event", methods=["GET", "POST"])
+@events.route("/<event_organizer_id>/create_event", methods=["GET", "POST"])
 # @logged_in
-def create_eevent():
+def create_event(event_organizer_id):
 
     data = request.form
     event_slug = slugify(data["name"])
@@ -87,9 +87,10 @@ def create_eevent():
         with engine.connect() as conn:
 
             query = text(
-                "INSERT INTO event(slug, name,date,venue,time_start,time_end,short_description,no_of_participants,datetime_created) VALUES(:slug,:name,:date,:venue,:time_start,:time_end,:short_description,:no_of_participants,now())"
+                "INSERT INTO event(event_organizer_id, slug, name,date,venue,time_start,time_end,short_description,no_of_participants,datetime_created) VALUES(:e_id,:slug,:name,:date,:venue,:time_start,:time_end,:short_description,:no_of_participants,now())"
             )
             params = dict(
+                e_id=event_organizer_id,
                 slug=event_slug,
                 name=data["name"],
                 date=data["date"],
@@ -100,17 +101,23 @@ def create_eevent():
                 no_of_participants=data["no_of_participants"],
             )
 
-            conn.execute(query, params)
+            result = conn.execute(query, params)
 
             conn.commit()
-            response = jsonify(EVENT_SUCESS)
-            response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 201
+
+            if result.rowcount > 0:
+                response = jsonify(EVENT_SUCCESS)
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                return response, 201
+            else:
+                response = jsonify(EVENT_FAILED)
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                return response, 400
 
 
 # Update Event
-@events.route("/update_event/<event_id>", methods=["PUT"])
-def update_event(event_id):
+@events.route("/<event_organizer_id>/update_event/<event_id>", methods=["PUT"])
+def update_event(event_organizer_id, event_id):
 
     data = request.form
 
@@ -137,11 +144,12 @@ def update_event(event_id):
     with engine.connect() as conn:
 
         query = text(
-            "UPDATE event SET name = :name, date = :date, venue = :venue, time_start = :time_start, time_end = :time_end, short_description = :short_description, no_of_participants = :no_of_participants, status = :status WHERE id = :id"
+            "UPDATE event SET name = :name, date = :date, venue = :venue, time_start = :time_start, time_end = :time_end, short_description = :short_description, no_of_participants = :no_of_participants, status = :status WHERE event_organizer_id = :e_id AND id = :id"
         )
 
         params = dict(
             id=event_id,
+            e_id=event_organizer_id,
             name=data["name"],
             date=data["date"],
             venue=data["venue"],
@@ -165,13 +173,13 @@ def update_event(event_id):
 
 
 # Delete Event
-@events.route("/delete_event/<event_id>", methods=["DELETE"])
-def delete_event(event_id):
+@events.route("<event_organizer_id>/delete_event/<event_id>", methods=["DELETE"])
+def delete_event(event_id, event_organizer_id):
 
     with engine.connect() as conn:
 
-        query = text("DELETE from event WHERE id = :id")
-        params = dict(id=event_id)
+        query = text("DELETE from event WHERE event_organizer_id = :e_id AND id = :id")
+        params = dict(id=event_id, e_id=event_organizer_id)
 
         result = conn.execute(query, params)
 
