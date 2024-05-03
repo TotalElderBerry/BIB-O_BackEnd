@@ -22,37 +22,77 @@ def logged_in(f):
     return decorated_func
 
 
-@auth.route("/login", methods=["GET", "POST"])
-def login():
+@auth.route("/event_organizer/login", methods=["GET", "POST"])
+def event_organizer_login():
 
     if request.method == "POST":
 
-        username = request.form["username"]
+        email = request.form["email"]
         password = request.form["password"]
 
         with engine.connect() as conn:
 
-            query = text("SELECT * FROM admin WHERE username = :uname")
-            params = dict(uname=username)
+            query = text("SELECT * FROM event_organizer WHERE email = :email")
+            params = dict(email=email)
 
             result = conn.execute(query, params).fetchone()
             rows = result
 
             if result is not None:
-                if password != result[2]:
+                if password != result[4]:
                     response = jsonify(INVALID_PASSWORD)
                     response.headers.add("Access-Control-Allow-Origin", "*")
-                    return response, 400
+                    return response, 404
                 else:
                     session.clear()
-                    session["email"] = result[4]
-                    response = jsonify(
-                        {"message": LOGIN_SUCESS, "data": dict(rows._mapping)}
-                    )
+                    session["email"] = result[3]
+                    response = jsonify(LOGIN_SUCESS)
                     response.headers.add("Access-Control-Allow-Origin", "*")
                     return response, 200
 
             else:
                 response = jsonify(BAD_CREDENTIALS)
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 400
+                return response, 404
+
+
+@auth.route("/photographer/login", methods=["GET", "POST"])
+def photographer_login():
+
+    if request.method == "POST":
+
+        email = request.form["email"]
+        password = request.form["password"]
+
+        with engine.connect() as conn:
+
+            query = text("SELECT * FROM photographer WHERE email = :email")
+            params = dict(email=email)
+
+            result = conn.execute(query, params).fetchone()
+            rows = result
+
+            if result is not None:
+                if password != result[4]:
+                    response = jsonify(INVALID_PASSWORD)
+                    response.headers.add("Access-Control-Allow-Origin", "*")
+                    return response, 404
+                else:
+                    session.clear()
+                    session["email"] = result[3]
+                    response = jsonify(LOGIN_SUCESS)
+                    response.headers.add("Access-Control-Allow-Origin", "*")
+                    return response, 200
+
+            else:
+                response = jsonify(BAD_CREDENTIALS)
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                return response, 404
+
+
+@auth.route("/logout", methods=["POST"])
+def logout():
+    session.pop("email", None)
+    response = jsonify(LOGOUT_SUCESS)
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response, 200
