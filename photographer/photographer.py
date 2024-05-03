@@ -11,19 +11,18 @@ photographer = Blueprint("photographers", __name__)
 CORS(photographer)
 
 
-@photographer.route("/<event_organizer_id>/", methods=["GET"])
+@photographer.route("/", methods=["GET"])
 # @logged_in
-def get_all(event_organizer_id):
+def get_all():
     if request.method == "GET":
 
         photographers = []
 
         with engine.connect() as conn:
 
-            query = text("SELECT * FROM photograph WHERE event_organizer_id = :eo_id")
-            params = dict(eo_id=event_organizer_id)
+            query = text("SELECT * FROM photograph")
 
-            result = conn.execute(query, params).fetchall()
+            result = conn.execute(query).fetchall()
 
             if query is None:
                 response = jsonify(NO_PHOTOGRAPHERS)
@@ -37,16 +36,14 @@ def get_all(event_organizer_id):
                     return response, 200
 
 
-@photographer.route("/<event_organizer_id>/<id>")
+@photographer.route("/<id>")
 # @logged_in
-def get_by_id(event_organizer_id, id):
+def get_by_id(id):
 
     with engine.connect() as conn:
 
-        query = text(
-            "SELECT * FROM photographer WHERE id = :id AND event_organizer_id = eo_id"
-        )
-        params = dict(id=id, eo_id=event_organizer_id)
+        query = text("SELECT * FROM photographer WHERE id = :id")
+        params = dict(id=id)
 
         result = conn.execute(query, params).fetchone()
 
@@ -60,9 +57,9 @@ def get_by_id(event_organizer_id, id):
             return response, 200
 
 
-@photographer.route("/<event_organizer_id>/registration", methods=["GET", "POST"])
+@photographer.route("/registration", methods=["GET", "POST"])
 # @logged_in
-def register_photographer(event_organizer_id):
+def register_photographer():
 
     data = request.form
 
@@ -73,25 +70,64 @@ def register_photographer(event_organizer_id):
             return jsonify(ADDRESS_EMPTY), 404
         elif data["email"] is None:
             return jsonify(EMAIL_EMPTY), 404
-        elif data["status"] is None:
-            return jsonify(STATUS_EMPTY), 404
 
         with engine.connect() as conn:
             query = text(
-                "INSERT INTO photographer(event_organizer_id, name, address, email, status,datetime_created) VALUES(:event_organizer_id, :name, :address, :email, :status, now())"
+                "INSERT INTO photographer(name, address, email, password,datetime_created) VALUES(:name, :address, :email, :password, now())"
             )
 
             params = dict(
-                event_organizer_id=event_organizer_id,
                 name=data["name"],
                 address=data["address"],
                 email=data["email"],
-                status=data["status"],
+                password=data["password"],
             )
 
-            conn.execute(query, params)
+            result = conn.execute(query, params)
 
             conn.commit()
-            response = jsonify(PHOTOGRAPHER_REGISTERED_SUCCESSFULLY)
+
+            if result.rowcount > 0:
+
+                response = jsonify(PHOTOGRAPHER_REGISTERED_SUCCESSFULLY)
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                return response, 201
+
+            else:
+
+                response = jsonify(FAILED_REGISTRATION_PHOTOGRAPHER)
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                return response, 400
+
+
+@photographer.route("/update/<id>")
+def update_event_organizer(id):
+
+    data = request.form
+
+    with engine.connect() as conn:
+
+        query = text(
+            "UPDATE photographer SET name = :name, address = :address, email =:email, password = :password WHERE id = :id"
+        )
+        params = dict(
+            id=id,
+            name=data["name"],
+            address=data["address"],
+            email=data["email"],
+            password=data["password"],
+        )
+
+        result = conn.execute(query, params)
+
+        conn.commit()
+
+        if result.rowcount > 0:
+            response = jsonify(UPDATE_PHOTOGRAPHER_SUCCESS)
             response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 201
+            return response, 200
+        else:
+
+            response = jsonify(UPDATE_PHOTOGRAPHER_UNSUCCESSFUL)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 400

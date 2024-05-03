@@ -22,6 +22,7 @@ STATUS_EMPTY = {"success": False, "message": "Status is required!"}
 EMAIL_EXISTS = {"success": False, "message": "Username already exists!"}
 UPDATE_EVENT_ORGANIZER_SUCCESS = {"success": True, "message": "Updated successfully!"}
 UPDATE_EVENT_ORGANIZER_UNSUCCESSFUL = {"success": False, "message": "Update failed!"}
+
 # Events
 FETCHED_EVENTS = {"success": True, "message": "Fetched Events successfully!"}
 NO_EVENTS = {"success": False, "message": "No Events at the moment"}
@@ -53,6 +54,8 @@ FAILED_REGISTRATION_PHOTOGRAPHER = {
     "success": False,
     "message": "unable to register photographer",
 }
+UPDATE_PHOTOGRAPHER_SUCCESS = {"success": True, "message": "Updated successfully!"}
+UPDATE_PHOTOGRAPHER_UNSUCCESSFUL = {"success": False, "message": "Update failed!"}
 
 
 # Runner
