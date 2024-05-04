@@ -1,9 +1,9 @@
 import os
-from flask import jsonify, current_app, Blueprint, request
+from flask import jsonify, current_app, Blueprint, request, session
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from bib_recog.copy_of_racebib import images
-
+from photographer.photographer import get_by_id
 
 upload_images = Blueprint("upload", __name__)
 CORS(upload_images)
@@ -32,16 +32,29 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@upload_images.route("/", methods=["GET", "POST"])
+@upload_images.route("/", methods=["POST"])
 def multi_images():
+    photographer_id = session.get("id")
 
     if request.method == "POST":
+        event_slug = request.args.get("slug")
+
+        if not event_slug:
+            response = jsonify({"success": False, "message": "Event slug not provided"})
+            response.headers.add("Allow-Access-Control-Origin", "*")
+            response.status_code = 400
+            return response
+
+        if not photographer_id:
+            response = jsonify(
+                {"success": False, "message": "Photographer ID not found in session"}
+            )
+            response.headers.add("Allow-Access-Control-Origin", "*")
+            response.status_code = 400
+            return response
 
         if "files[]" not in request.files:
-
-            response = jsonify(
-                {"success": False, "message": "not located in the folder"}
-            )
+            response = jsonify({"success": False, "message": "Files not found"})
             response.headers.add("Allow-Access-Control-Origin", "*")
             return response, 404
 
@@ -50,7 +63,13 @@ def multi_images():
         for file in files:
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(current_app.config["UPLOAD_FOLDER"], filename))
+                # Construct the upload path based on event slug and photographer ID
+                upload_folder = os.path.join(
+                    current_app.config["UPLOAD_FOLDER"],
+                    event_slug,
+                    str(photographer_id),
+                )
+                file.save(os.path.join(upload_folder, filename))
 
         response = jsonify({"success": True, "message": "Uploaded successfully"})
         response.headers.add("Allow-Access-Control-Origin", "*")
@@ -59,7 +78,7 @@ def multi_images():
 
     if request.method == "GET":
 
-        event_slug = request.args.get("event_slug")
+        event_slug = request.args.get("slug")
         query = request.args.get("query")
 
         filenames = images(event_slug, query)
