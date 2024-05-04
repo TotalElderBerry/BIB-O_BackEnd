@@ -1,7 +1,8 @@
+import os
 from flask_cors import CORS
 from database import engine
 from sqlalchemy import text, exc
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, current_app, request, jsonify, session
 from strings import *
 
 # from auth.auth import logged_in
@@ -55,10 +56,16 @@ def get_by_id(id):
             response.status_code = 404
             return response
         else:
-            response = jsonify(GET_PHOTOGRAPHERS, {"data": dict(result)})
+            response = jsonify(GET_PHOTOGRAPHERS, {"data": dict(result._mapping)})
             response.headers.add("Access-Control-Allow-Origin", "*")
             response.status_code = 200
             return response
+
+
+def get_session():
+    test = session.get("id")
+    print(test)
+    return test
 
 
 @photographer.route("/registration", methods=["GET", "POST"])
@@ -86,12 +93,12 @@ def register_photographer():
 
         with engine.connect() as conn:
             query = text(
-                "INSERT INTO photographer(name, address, email, password,datetime_created) VALUES(:name, :address, :email, :password, now())"
+                "INSERT INTO photographer(name,alias, email, password,datetime_created) VALUES(:name,:alias, :email, :password, now())"
             )
 
             params = dict(
                 name=data["name"],
-                address=data["address"],
+                alias=data["alias"],
                 email=data["email"],
                 password=data["password"],
             )
@@ -105,6 +112,15 @@ def register_photographer():
                 response = jsonify(PHOTOGRAPHER_REGISTERED_SUCCESSFULLY)
                 response.headers.add("Access-Control-Allow-Origin", "*")
                 response.status_code = 201
+
+                # pk_photographer_id = result.lastrowid
+
+                # if pk_photographer_id is not None:
+                #     folder_path = os.path.join(
+                #         current_app.static_folder, "gallery", str(pk_photographer_id)
+                #     )
+                #     os.makedirs(folder_path, exist_ok=True)
+
                 return response
 
             else:
@@ -148,3 +164,8 @@ def update_event_organizer(id):
             response.headers.add("Access-Control-Allow-Origin", "*")
             response.status_code = 400
             return response
+
+
+# upload photos based on the events
+
+# list of photographers under that event
