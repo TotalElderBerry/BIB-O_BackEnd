@@ -30,7 +30,7 @@ app.register_blueprint(events, url_prefix="/event")
 app.register_blueprint(photographer, url_prefix="/photographer")
 app.register_blueprint(runners, url_prefix="/runner")
 app.register_blueprint(auth, url_prefix="/auth")
-app.register_blueprint(upload_images, url_prefix="/")
+app.register_blueprint(upload_images, url_prefix="/upload")
 
 
 # Routes
