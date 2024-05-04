@@ -65,9 +65,10 @@ def register():
 # Update
 
 
-@event_organizer.route("/update/<id>")
-def update_event_organizer(id):
+@event_organizer.route("/update")
+def update_event_organizer():
 
+    event_organizer_id = session.get("id")
     data = request.form
 
     with engine.connect() as conn:
@@ -76,7 +77,7 @@ def update_event_organizer(id):
             "UPDATE event_organizer SET name = :name, address = :address, email =:email, password = :password WHERE id = :id"
         )
         params = dict(
-            id=id,
+            id=event_organizer_id,
             name=data["name"],
             address=data["address"],
             email=data["email"],
