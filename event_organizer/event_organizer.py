@@ -39,11 +39,10 @@ def register():
             with engine.connect() as conn:
 
                 query = text(
-                    "INSERT INTO event_organizer(name,address,email,password,datetime_created) VALUE (:name,:address,:email,:password, now())"
+                    "INSERT INTO event_organizer(name,email,password,datetime_created) VALUE (:name,:email,:password, now())"
                 )
                 params = dict(
                     name=data["name"],
-                    address=data["address"],
                     email=data["email"],
                     password=data["password"],
                 )

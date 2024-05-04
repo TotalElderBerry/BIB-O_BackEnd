@@ -40,14 +40,14 @@ def event_organizer_login():
             rows = result
 
             if result is not None:
-                if password != result[4]:
+                if password != result[3]:
                     response = jsonify(INVALID_PASSWORD)
                     response.headers.add("Access-Control-Allow-Origin", "*")
                     response.status_code = 404
                     return response
                 else:
                     session.clear()
-                    session["email"] = result[3]
+                    session["email"] = result[2]
                     response = jsonify(LOGIN_SUCESS)
                     response.headers.add("Access-Control-Allow-Origin", "*")
                     response.status_code = 200
@@ -77,14 +77,14 @@ def photographer_login():
             rows = result
 
             if result is not None:
-                if password != result[4]:
+                if password != result[3]:
                     response = jsonify(INVALID_PASSWORD)
                     response.headers.add("Access-Control-Allow-Origin", "*")
                     response.status_code = 404
                     return response
                 else:
                     session.clear()
-                    session["email"] = result[3]
+                    session["email"] = result[2]
                     response = jsonify(LOGIN_SUCESS)
                     response.headers.add("Access-Control-Allow-Origin", "*")
                     response.status_code = 200
