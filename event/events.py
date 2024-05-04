@@ -66,6 +66,30 @@ def get_by_id(id):
                 return response
 
 
+@events.route("/slug/<slug>", methods={"GET"})
+# @logged_in
+def get_by_slug(slug):
+
+    if request.method == "GET":
+        with engine.connect() as conn:
+
+            query = text("SELECT * FROM event where slug = :slug")
+            param = dict(slug=slug)
+
+            result = conn.execute(query, param).fetchone()
+            print(result)
+            if result is None:
+                response = jsonify(NO_EVENTS)
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                response.status_code = 400
+                return response
+            else:
+                response = jsonify(EVENT_RETRIEVED, {"data": dict(result._mapping)})
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                response.status_code = 200
+                return response
+
+
 # Create events
 @events.route("/<event_organizer_id>/create_event", methods=["GET", "POST"])
 # @logged_in
