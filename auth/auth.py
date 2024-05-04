@@ -77,15 +77,16 @@ def photographer_login():
             rows = result
 
             if result is not None:
-                if password != result[3]:
+                if password != result[4]:
                     response = jsonify(INVALID_PASSWORD)
                     response.headers.add("Access-Control-Allow-Origin", "*")
                     response.status_code = 404
                     return response
                 else:
                     session.clear()
-                    session["email"] = result[2]
-                    response = jsonify(LOGIN_SUCESS)
+                    session["email"] = result[3]
+                    session["id"] = result[0]
+                    response = jsonify(LOGIN_SUCESS, {"data_id": session["id"]})
                     response.headers.add("Access-Control-Allow-Origin", "*")
                     response.status_code = 200
                     return response

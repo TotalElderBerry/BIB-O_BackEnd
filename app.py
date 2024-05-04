@@ -1,4 +1,4 @@
-from flask import Flask, Response, request
+from flask import Flask, Response, request, session
 from event_organizer.event_organizer import event_organizer
 from event.events import events
 from photographer.photographer import photographer

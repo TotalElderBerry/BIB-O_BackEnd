@@ -1,8 +1,9 @@
 import os
 from datetime import datetime
+from auth.auth import logged_in
 from database import engine
 from sqlalchemy import text
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, session
 from strings import *
 from slugify import slugify
 
@@ -26,6 +27,12 @@ def get_all_events():
 
         result = conn.execute(query).fetchall()
 
+        if "id" in session:
+            photographer_id = session["id"]
+            response = jsonify(FETCHED_EVENTS, {"data": events, "id": photographer_id})
+        else:
+            response = jsonify({"error": "Photographer is not logged in"})
+
         if not result:
             response = jsonify(NO_EVENTS)
             response.headers.add("Access-Control-Allow-Origin", "*")
@@ -34,6 +41,7 @@ def get_all_events():
         else:
 
             for row in result:
+
                 events.append(dict(row._mapping))
                 response = jsonify(FETCHED_EVENTS, {"data": events})
                 response.headers.add("Access-Control-Allow-Origin", "*")
