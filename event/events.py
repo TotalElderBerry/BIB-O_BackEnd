@@ -19,27 +19,35 @@ CORS(events)
 # @logged_in
 def get_all_events():
 
+    search_query = request.args.get("q")
     events = []
 
     with engine.connect() as conn:
 
-        query = text("SELECT * FROM event")
-        result = conn.execute(query).fetchall()
+        if search_query:
 
-        if not result:
-            response = jsonify(NO_EVENTS)
-            response.headers.add("Access-Control-Allow-Origin", "*")
-            response.status_code = 404
-            return response
+            query = text("SELECT * FROM event WHERE name LIKE :query")
+            params = {"query": f"%{search_query}%"}
+
         else:
+            query = text("SELECT * FROM event")
+            params = {}
+            result = conn.execute(query, params).fetchall()
 
-            for row in result:
-
-                events.append(dict(row._mapping))
-                response = jsonify(FETCHED_EVENTS, {"data": events})
+            if not result:
+                response = jsonify(NO_EVENTS)
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                response.status_code = 200
-            return response
+                response.status_code = 404
+                return response
+            else:
+
+                for row in result:
+
+                    events.append(dict(row._mapping))
+                    response = jsonify(FETCHED_EVENTS, {"data": events})
+                    response.headers.add("Access-Control-Allow-Origin", "*")
+                    response.status_code = 200
+                return response
 
 
 @events.route("/<event_organizer_id>")
@@ -103,7 +111,7 @@ def get_by_id(id):
 
 @events.route("/<event_organizer_id>/<id>")
 # @logged_in
-def get_all_events_by_organizer(event_organizer_id, id):
+def get_all_events_by_organizer_by_id(event_organizer_id, id):
 
     events = []
 
