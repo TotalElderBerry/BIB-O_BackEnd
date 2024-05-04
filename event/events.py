@@ -24,12 +24,39 @@ def get_all_events():
     with engine.connect() as conn:
 
         query = text("SELECT * FROM event")
-
         result = conn.execute(query).fetchall()
 
+        if not result:
+            response = jsonify(NO_EVENTS)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.status_code = 404
+            return response
+        else:
+
+            for row in result:
+
+                events.append(dict(row._mapping))
+                response = jsonify(FETCHED_EVENTS, {"data": events})
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                response.status_code = 200
+            return response
+
+
+@events.route("/<event_organizer_id>")
+# @logged_in
+def get_all_events_by_organizer(event_organizer_id):
+
+    events = []
+
+    with engine.connect() as conn:
+
+        query = text("SELECT * FROM event WHERE event_organizer_id = :e_id")
+        params = dict(e_id=event_organizer_id)
+        result = conn.execute(query, params).fetchall()
+
         if "id" in session:
-            photographer_id = session["id"]
-            response = jsonify(FETCHED_EVENTS, {"data": events, "id": photographer_id})
+
+            response = jsonify(FETCHED_EVENTS, {"data": events})
         else:
             response = jsonify({"error": "Photographer is not logged in"})
 
@@ -72,6 +99,42 @@ def get_by_id(id):
                 response.headers.add("Access-Control-Allow-Origin", "*")
                 response.status_code = 200
                 return response
+
+
+@events.route("/<event_organizer_id>/<id>")
+# @logged_in
+def get_all_events_by_organizer(event_organizer_id, id):
+
+    events = []
+
+    with engine.connect() as conn:
+
+        query = text(
+            "SELECT * FROM event WHERE event_organizer_id = :e_id AND id = :id"
+        )
+        params = dict(e_id=event_organizer_id)
+        result = conn.execute(query, params).fetchall()
+
+        if "id" in session:
+
+            response = jsonify(FETCHED_EVENTS, {"data": events})
+        else:
+            response = jsonify({"error": "Photographer is not logged in"})
+
+        if not result:
+            response = jsonify(NO_EVENTS)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.status_code = 404
+            return response
+        else:
+
+            for row in result:
+
+                events.append(dict(row._mapping))
+                response = jsonify(FETCHED_EVENTS, {"data": events})
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                response.status_code = 200
+            return response
 
 
 @events.route("/slug/<slug>", methods={"GET"})
