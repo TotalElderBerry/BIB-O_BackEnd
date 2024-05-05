@@ -28,7 +28,16 @@ def get_all_events():
 
             query = text("SELECT * FROM event WHERE name LIKE :query")
             params = {"query": f"%{search_query}%"}
-
+            result = conn.execute(query, params)
+            # Assuming db is your SQLAlchemy database instance
+            result = result.fetchall() 
+            for row in result:
+                events.append(dict(row._mapping))
+                print(row)
+            response = jsonify(FETCHED_EVENTS, {"data": events})
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.status_code = 200
+            return response
         else:
             query = text("SELECT * FROM event")
             params = {}
