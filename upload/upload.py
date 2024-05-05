@@ -104,7 +104,10 @@ def multi_images():
         event_slug = request.args.get("slug")
         photog_id = request.args.get("photog_id")
         query = request.args.get("query")
-        filenames = images(event_slug, query)
+        if(photog_id):
+            filenames = images(event_slug, query,photog_id)
+        else:    
+            filenames = images(event_slug, query)
         response_data = {
             "success": True,
             "message": "Fetched successfully",
