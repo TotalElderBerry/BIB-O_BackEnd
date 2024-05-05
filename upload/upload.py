@@ -143,20 +143,18 @@ def multi_images():
         return response
 
 
-@upload_images.route("/uploader")
+@upload_images.route("/uploader", methods=["GET"])
 def uploaders_per_event():
-
     event_id = request.args.get("event_id")
     uploaders = []
 
     with engine.connect() as conn:
-
         query = text("SELECT * FROM uploader WHERE event_id = :e_id")
-        params = dict(e_id=event_id)
+        params = {"e_id": event_id}
 
         result = conn.execute(query, params).fetchall()
 
-        if result is None:
+        if not result:  # Check if result is empty (no uploads)
             response = jsonify(
                 {"success": False, "message": "No uploads as of the moment!"}
             )
@@ -164,17 +162,12 @@ def uploaders_per_event():
             response.status_code = 404
             return response
         else:
-
             for row in result:
-
                 uploaders.append(dict(row._mapping))
-                response = jsonify(
-                    {
-                        "success": True,
-                        "message": "Work like hell slave nigga fuck",
-                        "data": uploaders,
-                    }
-                )
-                response.headers.add("Access-Control-Allow-Origin", "*")
-                response.status_code = 200
-                return response
+
+            response = jsonify(
+                {"success": True, "message": "Uploaders found", "data": uploaders}
+            )
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.status_code = 200
+            return response
