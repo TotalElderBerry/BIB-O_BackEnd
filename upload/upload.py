@@ -79,20 +79,44 @@ def multi_images():
 
         with engine.connect() as conn:
 
-            query_upload = text(
-                "INSERT INTO uploader(photographer_id, event_id, number_of_uploads) VALUES (:p_id, :e_id, :no_uploads) ON DUPLICATE KEY UPDATE number_of_uploads = number_of_uploads + :no_uploads"
+            query_fetch = text(
+                "SELECT * FROM uploader WHERE photographer_id = :p_id AND event_id = :e_id"
             )
-            params = dict(
-                p_id=photographer_id, e_id=event_id, no_uploads=total_uploaded
-            )
-            result = conn.execute(query_upload, params)
-            conn.commit()
+            params_fetch = dict(p_id=photographer_id, e_id=event_id)
+            result_query = conn.execute(query_fetch, params_fetch).fetchone()
 
-            if result.rowcount > 0:
+            if result_query is None:
 
-                response = jsonify(UPLOADER_INSERTED)
-                response.headers.add("Access-Control-Allow-Origin", "*")
-                response.status_code = 201
+                query_upload = text(
+                    "INSERT INTO uploader(photographer_id, event_id, number_of_uploads) VALUES (:p_id, :e_id, :no_uploads)"
+                )
+                params = dict(
+                    p_id=photographer_id, e_id=event_id, no_uploads=total_uploaded
+                )
+                result = conn.execute(query_upload, params)
+                conn.commit()
+
+                if result.rowcount > 0:
+
+                    response = jsonify(UPLOADER_INSERTED)
+                    response.headers.add("Access-Control-Allow-Origin", "*")
+                    response.status_code = 201
+            else:
+                query_update = text(
+                    "UPDATE uploader "
+                    "SET number_of_uploads = number_of_uploads + :no_uploads "
+                    "WHERE photographer_id = :p_id AND event_id = :e_id"
+                )
+                params_update = dict(
+                    p_id=photographer_id, e_id=event_id, no_uploads=total_uploaded
+                )
+                result_update = conn.execute(query_update, params_update)
+                conn.commit()
+
+                if result_update.rowcount > 0:
+                    response = jsonify(UPLOADER_UPDATED)
+                    response.headers.add("Access-Control-Allow-Origin", "*")
+                    response.status_code = 200
 
         response = jsonify({"success": True, "message": "Uploaded successfully"})
         response.headers.add("Allow-Access-Control-Origin", "*")
@@ -117,3 +141,40 @@ def multi_images():
         response.headers.add("Allow-Access-Control-Origin", "*")
         response.status_code = 200
         return response
+
+
+@upload_images.route("/uploader")
+def uploaders_per_event():
+
+    event_id = request.args.get("event_id")
+    uploaders = []
+
+    with engine.connect() as conn:
+
+        query = text("SELECT * FROM uploader WHERE event_id = :e_id")
+        params = dict(e_id=event_id)
+
+        result = conn.execute(query, params).fetchall()
+
+        if result is None:
+            response = jsonify(
+                {"success": False, "message": "No uploads as of the moment!"}
+            )
+            response.headers.add("Allow-Access-Control-Origin", "*")
+            response.status_code = 404
+            return response
+        else:
+
+            for row in result:
+
+                uploaders.append(dict(row._mapping))
+                response = jsonify(
+                    {
+                        "success": True,
+                        "message": "Work like hell slave nigga fuck",
+                        "data": uploaders,
+                    }
+                )
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                response.status_code = 200
+                return response
