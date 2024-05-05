@@ -83,4 +83,8 @@ NO_IMAGES_INSERTED = {"success": False, "message": "No inserted images"}
 IMAGE_SUCCESS = {"success": True, "message": "Uploaded images successfully"}
 
 #
-UPLOADER_INSERTED = {"succcess": True, "message": "Uploaded Images on this event successfully!"}
+UPLOADER_INSERTED = {
+    "succcess": True,
+    "message": "Uploaded Images on this event successfully!",
+}
+UPLOADER_UPDATED = {"success": True, "message": "Updated upload count!"}
