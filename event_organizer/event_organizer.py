@@ -7,6 +7,30 @@ from strings import *
 event_organizer = Blueprint("event_organizer", __name__)
 
 
+# Get events by id
+@event_organizer.route("/<id>", methods={"GET", "POST"})
+# @logged_in
+def get_by_id(id):
+
+    if request.method == "GET":
+        with engine.connect() as conn:
+
+            query = text("SELECT * FROM event_organizer where id = :id")
+            param = dict(id=id)
+
+            result = conn.execute(query, param).fetchone()
+
+            if result is None:
+                response = jsonify(NO_EVENTS)
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                response.status_code = 400
+                return response
+            else:
+                response = jsonify(EVENT_RETRIEVED, {"data": dict(result._mapping)})
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                response.status_code = 200
+                return response
+
 @event_organizer.route("/register", methods=["GET", "POST"])
 def register():
     data = request.form

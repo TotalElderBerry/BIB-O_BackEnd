@@ -56,12 +56,22 @@ def scale_roi(x, y, w, h, image_shape, size=1.1):
 
 def images(folder, bibnumber):
     # Load the cascade
+    # Get the current working directory
+    current_directory = os.getcwd()
+
+    # Assuming you have dynamic variables for the cascade file and input folder
+    cascade_file_path = os.path.join(
+        current_directory, "bib_recog", "cascade1.xml"
+    )
+    input_folder = os.path.join(
+        current_directory, "static", "gallery", folder
+    )
     cascade = cv2.CascadeClassifier(
-        "C:/Users/PC/Desktop/BIB-O_BackEnd/bib_recog/cascade1.xml"
+        cascade_file_path
     )
     filenames = []
     # Folder paths
-    input_folder = "C:/Users/PC/Desktop/BIB-O_BackEnd/static/gallery/" + folder
+    # input_folder = "C:/Users/PC/Desktop/BIB-O_BackEnd/static/gallery/" + folder
 
     # Iterate through each file in the folder
     for filename in os.listdir(input_folder):

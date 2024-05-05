@@ -14,7 +14,7 @@ ALLOWED_EXTENSIONS = set(["txt", "pdf", "png", "jpg", "jpeg", "gif"])
 
 def initialize_upload_folder():
     path = os.getcwd()
-    UPLOAD_FOLDER = os.path.join(path, "gallery")
+    UPLOAD_FOLDER = os.path.join(path, "static/gallery")
 
     if not os.path.isdir(UPLOAD_FOLDER):
         os.mkdir(UPLOAD_FOLDER)
@@ -32,11 +32,10 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@upload_images.route("/", methods=["POST"])
+@upload_images.route("/", methods=["POST","GET"])
 def multi_images():
-    photographer_id = session.get("id")
-
     if request.method == "POST":
+        photographer_id = request.args.get('photog_id')
         event_slug = request.args.get("slug")
 
         if not event_slug:
@@ -69,6 +68,8 @@ def multi_images():
                     event_slug,
                     str(photographer_id),
                 )
+                if not os.path.exists(upload_folder):
+                    os.makedirs(upload_folder)
                 file.save(os.path.join(upload_folder, filename))
 
         response = jsonify({"success": True, "message": "Uploaded successfully"})
@@ -79,9 +80,10 @@ def multi_images():
     if request.method == "GET":
 
         event_slug = request.args.get("slug")
+        photog_id = request.args.get("photog_id")
         query = request.args.get("query")
-
-        filenames = images(event_slug, query)
+        folderpath = event_slug+"/"+photog_id
+        filenames = images(folderpath, query)
         response_data = {
             "success": True,
             "message": "Fetched successfully",
