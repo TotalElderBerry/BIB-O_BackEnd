@@ -1,9 +1,12 @@
 import os
 from flask import jsonify, current_app, Blueprint, request, session
 from flask_cors import CORS
+from sqlalchemy import text
 from werkzeug.utils import secure_filename
 from bib_recog.copy_of_racebib import images
 from photographer.photographer import get_by_id
+from database import engine
+from strings import *
 
 upload_images = Blueprint("upload", __name__)
 CORS(upload_images)
@@ -32,10 +35,11 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@upload_images.route("/", methods=["POST","GET"])
+@upload_images.route("/", methods=["POST", "GET"])
 def multi_images():
     if request.method == "POST":
-        photographer_id = request.args.get('photog_id')
+        photographer_id = request.args.get("photog_id")
+        event_id = request.args.get("event_id")
         event_slug = request.args.get("slug")
 
         if not event_slug:
@@ -58,6 +62,7 @@ def multi_images():
             return response, 404
 
         files = request.files.getlist("files[]")
+        total_uploaded = len(files)
 
         for file in files:
             if file and allowed_file(file.filename):
@@ -72,6 +77,23 @@ def multi_images():
                     os.makedirs(upload_folder)
                 file.save(os.path.join(upload_folder, filename))
 
+        with engine.connect() as conn:
+
+            query_upload = text(
+                "INSERT INTO uploader(photographer_id, event_id, number_of_uploads) VALUES (:p_id, :e_id, :no_uploads) ON DUPLICATE KEY UPDATE number_of_uploads = number_of_uploads + :no_uploads"
+            )
+            params = dict(
+                p_id=photographer_id, e_id=event_id, no_uploads=total_uploaded
+            )
+            result = conn.execute(query_upload, params)
+            conn.commit()
+
+            if result.rowcount > 0:
+
+                response = jsonify(UPLOADER_INSERTED)
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                response.status_code = 201
+
         response = jsonify({"success": True, "message": "Uploaded successfully"})
         response.headers.add("Allow-Access-Control-Origin", "*")
         response.status_code = 201
@@ -82,7 +104,8 @@ def multi_images():
         event_slug = request.args.get("slug")
         photog_id = request.args.get("photog_id")
         query = request.args.get("query")
-        folderpath = event_slug+"/"+photog_id
+
+        folderpath = event_slug + "/" + photog_id
         filenames = images(folderpath, query)
         response_data = {
             "success": True,

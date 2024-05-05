@@ -79,5 +79,8 @@ FAILED_DELETE_RUNNER = {"success": False, "message": "Unable to delete Runner!"}
 
 
 # Upload Image
-NO_IMAGES_INSERTED = {"message": "No inserted images"}
-IMAGE_SUCCESS = {"message": "Uploaded images successfully"}
+NO_IMAGES_INSERTED = {"success": False, "message": "No inserted images"}
+IMAGE_SUCCESS = {"success": True, "message": "Uploaded images successfully"}
+
+#
+UPLOADER_INSERTED = {"succcess": True, "message": "Uploaded Images on this event successfully!"}
