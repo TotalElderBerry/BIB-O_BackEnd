@@ -2,7 +2,7 @@ import os
 from flask import jsonify, current_app, Blueprint, request, session
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
-from bib_recog.copy_of_racebib import images
+from bib_recog.copy_of_racebib import images,generate
 from photographer.photographer import get_by_id
 
 upload_images = Blueprint("upload", __name__)
@@ -58,20 +58,20 @@ def multi_images():
             return response, 404
 
         files = request.files.getlist("files[]")
-
+        upload_folder = os.path.join(
+            current_app.config["UPLOAD_FOLDER"],
+            event_slug,
+            str(photographer_id),
+        )
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)
         for file in files:
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 # Construct the upload path based on event slug and photographer ID
-                upload_folder = os.path.join(
-                    current_app.config["UPLOAD_FOLDER"],
-                    event_slug,
-                    str(photographer_id),
-                )
-                if not os.path.exists(upload_folder):
-                    os.makedirs(upload_folder)
                 file.save(os.path.join(upload_folder, filename))
 
+        generate(event_slug,str(photographer_id),files)
         response = jsonify({"success": True, "message": "Uploaded successfully"})
         response.headers.add("Allow-Access-Control-Origin", "*")
         response.status_code = 201
@@ -82,8 +82,7 @@ def multi_images():
         event_slug = request.args.get("slug")
         photog_id = request.args.get("photog_id")
         query = request.args.get("query")
-        folderpath = event_slug+"/"+photog_id
-        filenames = images(folderpath, query)
+        filenames = images(event_slug, query)
         response_data = {
             "success": True,
             "message": "Fetched successfully",
