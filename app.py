@@ -6,16 +6,24 @@ from runner.runners import runners
 from auth.auth import auth
 from flask_cors import CORS
 from upload.upload import upload_images
+from flask_mail import Mail, Message
 import uuid
 
 app = Flask(__name__, static_url_path="/static")
 
+CORS(app)
+
 # Configurations
 app.config["SECRET_KEY"] = uuid.uuid4().hex
 app.config["CORS_HEADERS"] = "Content-Type"
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_PORT"] = 465
+app.config["MAIL_USERNAME"] = "jeremyandyampatin@gmail.com"
+app.config["MAIL_PASSWORD"] = "fvhi rgww azae uajj"
+app.config["MAIL_USE_TLS"] = False
+app.config["MAIL_USE_SSL"] = True
 
-
-CORS(app)
+mail = Mail(app)
 
 
 @app.before_request
