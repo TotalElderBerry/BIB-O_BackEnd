@@ -137,6 +137,45 @@ def photographer_login():
                 return response
 
 
+@auth.route("/runner/login", methods=["GET", "POST"])
+def photographer_login():
+
+    if request.method == "POST":
+
+        email = request.form["email"]
+        password = request.form["password"]
+
+        with engine.connect() as conn:
+
+            query = text("SELECT * FROM runner WHERE email = :email")
+            params = dict(email=email)
+
+            result = conn.execute(query, params).fetchone()
+            rows = result
+
+            if result is not None:
+                if password != result[4]:
+                    response = jsonify(INVALID_PASSWORD)
+                    response.headers.add("Access-Control-Allow-Origin", "*")
+                    response.status_code = 404
+                    return response
+                else:
+                    session.clear()
+                    session["logged_in"] = True
+                    session["email"] = result[3]
+                    session["id"] = result[0]
+                    response = jsonify(LOGIN_SUCESS, {"data": rows[0]})
+                    response.headers.add("Access-Control-Allow-Origin", "*")
+                    response.status_code = 200
+                    return response
+
+            else:
+                response = jsonify(BAD_CREDENTIALS)
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                response.status_code = 400
+                return response
+
+
 @auth.route("/logout", methods=["POST"])
 def logout():
     session.pop("email", None)
