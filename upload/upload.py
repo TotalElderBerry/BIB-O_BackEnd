@@ -172,3 +172,40 @@ def uploaders_per_event():
             response.headers.add("Access-Control-Allow-Origin", "*")
             response.status_code = 200
             return response
+
+
+@upload_images.route("/uploader")
+def uploaded_images_by_photographer():
+
+    photographer_id = request.args("photog_id")
+
+    images_uploaded_by_photographer = []
+    
+    with engine.connect() as conn:
+
+        query = text("SELECT * FROM uploader WHERE photographer_id = :p_id")
+        params = dict(p_id=photographer_id)
+
+        result = conn.execute(query, params).fetchall()
+
+        if not result:  # Check if result is empty (no uploads)
+            response = jsonify(
+                {"success": False, "message": "No images uploaded as of the moment!"}
+            )
+            response.headers.add("Allow-Access-Control-Origin", "*")
+            response.status_code = 404
+            return response
+        else:
+            for row in result:
+                images_uploaded_by_photographer.append(dict(row._mapping))
+
+            response = jsonify(
+                {
+                    "success": True,
+                    "message": "Images found!",
+                    "data": images_uploaded_by_photographer,
+                }
+            )
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.status_code = 200
+            return response
