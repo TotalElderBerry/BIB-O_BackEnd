@@ -131,21 +131,7 @@ def approve_registration(event_id, runner_id):
                     conn.commit()
 
                     if result.rowcount > 0:
-
-                        email = get_runner_email(runner_id)
-                        print("email", email)
-                        msg = Message(
-                            "test",
-                            sender="noreply@demo.com",
-                            recipients=["jeremyandyampatin@gmail.com"],
-                        )
-                        msg.body = "I'm A nigger hehe"
-                        mail.send(msg)
-
-                        response = jsonify({"success": True, "message": "Email sent!"})
-                        response.headers.add("Access-Control-Allow-Origin", "*")
-                        response.status_code = 200
-                        return response
+                        send_mail(runner_id)
 
                     else:
                         response = jsonify(
@@ -304,3 +290,21 @@ def get_status_registration(runner_id, event_id):
         result = conn.execute(query, params).fetchone()
 
         return result
+
+
+def send_mail(runner_id):
+
+    email = get_runner_email(runner_id)
+
+    msg = Message(
+        "test",
+        sender="noreply@demo.com",
+        recipients=["jeremyandyampatin@gmail.com"],
+    )
+    msg.body = "I'm A nigger hehe"
+    mail.send(msg)
+
+    response = jsonify({"success": True, "message": "Email sent!"})
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.status_code = 200
+    return response
