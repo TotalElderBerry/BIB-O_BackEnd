@@ -23,6 +23,43 @@ def logged_in(f):
     return decorated_func
 
 
+@auth.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+
+    if request.method == "POST":
+
+        username = request.form["username"]
+        password = request.form["password"]
+
+        with engine.connect() as conn:
+
+            query = text("SELECT * FROM admin WHERE username = :uname")
+            params = dict(uname=username)
+
+            result = conn.execute(query, params).fetchone()
+
+            if result is not None:
+
+                if password != result[2]:
+                    response = jsonify(INVALID_PASSWORD)
+                    response.headers.add("Access-Control-Allow-Origin", "*")
+                    response.status_code = 404
+                    return response
+                else:
+                    session["logged_in"] = True
+                    session["id"] = result[0]
+                    response = jsonify(LOGIN_SUCESS)
+                    response.headers.add("Access-Control-Allow-Origin", "*")
+                    response.status_code = 200
+                    return response
+
+            else:
+                response = jsonify(BAD_CREDENTIALS)
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                response.status_code = 400
+                return response
+
+
 @auth.route("/event_organizer/login", methods=["GET", "POST"])
 def event_organizer_login():
 
@@ -37,7 +74,6 @@ def event_organizer_login():
             params = dict(email=email)
 
             result = conn.execute(query, params).fetchone()
-            rows = result
 
             if result is not None:
                 if password != result[3]:
@@ -47,7 +83,9 @@ def event_organizer_login():
                     return response
                 else:
                     session.clear()
+                    session["logged_in"] = True
                     session["email"] = result[2]
+                    session["id"] = result[0]
                     response = jsonify(LOGIN_SUCESS)
                     response.headers.add("Access-Control-Allow-Origin", "*")
                     response.status_code = 200
@@ -56,7 +94,7 @@ def event_organizer_login():
             else:
                 response = jsonify(BAD_CREDENTIALS)
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                response.status_code = 404
+                response.status_code = 400
                 return response
 
 
@@ -84,9 +122,10 @@ def photographer_login():
                     return response
                 else:
                     session.clear()
+                    session["logged_in"] = True
                     session["email"] = result[3]
                     session["id"] = result[0]
-                    response = jsonify(LOGIN_SUCESS, {"data_id": session["id"]})
+                    response = jsonify(LOGIN_SUCESS, {"data": rows[0]})
                     response.headers.add("Access-Control-Allow-Origin", "*")
                     response.status_code = 200
                     return response
@@ -94,7 +133,7 @@ def photographer_login():
             else:
                 response = jsonify(BAD_CREDENTIALS)
                 response.headers.add("Access-Control-Allow-Origin", "*")
-                response.status_code = 404
+                response.status_code = 400
                 return response
 
 
