@@ -63,14 +63,14 @@ def get_all_runners(event_id):
             return response
 
 
-@runners.route("/<event_id>/<id>")
+@runners.route("/<id>")
 # @logged_in
-def get_one_runner(id, event_id):
+def get_runner_by_id(id):
 
     with engine.connect() as conn:
 
-        query = text("SELECT * FROM runner where id = :id AND event_id = event_id")
-        params = dict(id=id, event_id=event_id)
+        query = text("SELECT * FROM runner where id = :id ")
+        params = dict(id=id)
 
         result = conn.execute(query, params).fetchone()
 
