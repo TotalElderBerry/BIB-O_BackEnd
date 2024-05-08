@@ -98,18 +98,16 @@ def approve_registration(event_id, runner_id):
 
     if request.method == "POST":
 
-        status_db = get_status_registration(event_id, runner_id)
+        status_db = get_status_registration(runner_id, event_id)
         flag_check = get_all_runners(event_id)
-
         if flag_check.status_code == 200:
 
             data = request.form
-
             if status_db == "Pending":
 
                 with engine.connect() as conn:
                     update_query = text(
-                        "UPDATE event_registration SET status = :status, bib_no = :bib_no WHERE event_id = :e_id AND runner_id = :r_id"
+                        "UPDATE event_registration SET status = 'Accepted', bib_no = :bib_no WHERE event_id = :e_id AND runner_id = :r_id"
                     )
 
                     category_queue = text(
@@ -121,7 +119,6 @@ def approve_registration(event_id, runner_id):
                     ).fetchone()
 
                     params = dict(
-                        status=data["status"],
                         bib_no=generate_bib_number(category_result[0]),
                         r_id=runner_id,
                         e_id=event_id,
@@ -131,8 +128,7 @@ def approve_registration(event_id, runner_id):
                     conn.commit()
 
                     if result.rowcount > 0:
-                        send_mail(runner_id)
-
+                        return send_mail(runner_id)
                     else:
                         response = jsonify(
                             {"success": False, "message": "Error occured"}
@@ -285,11 +281,11 @@ def get_status_registration(runner_id, event_id):
         query = text(
             "SELECT status FROM event_registration WHERE event_id = :e_id AND runner_id = :r_id"
         )
+        
         params = dict(e_id=event_id, r_id=runner_id)
 
         result = conn.execute(query, params).fetchone()
-
-        return result
+        return result[0]
 
 
 def send_mail(runner_id):
@@ -299,7 +295,7 @@ def send_mail(runner_id):
     msg = Message(
         "test",
         sender="noreply@demo.com",
-        recipients=["jeremyandyampatin@gmail.com"],
+        recipients=["lisondrabrian48@gmail.com"],
     )
     msg.body = "I'm A nigger hehe"
     mail.send(msg)

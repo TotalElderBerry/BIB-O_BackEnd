@@ -42,9 +42,9 @@ def get_all_runners(event_id):
     with engine.connect() as conn:
 
         query = text(
-            "SELECT * FROM event_registration WHERE event_id = :event_id LIKE status = :status"
+            "SELECT * FROM event_registration INNER JOIN runner on runner.id = runner_id WHERE event_id = :event_id AND status LIKE :status"
         )
-        params = dict(event_id=event_id, status=runner_status)
+        params = dict(event_id=event_id, status=f"%{runner_status}%")
         result = conn.execute(query, params)
 
         if not result:
@@ -57,10 +57,10 @@ def get_all_runners(event_id):
             for row in result:
                 runners.append(dict(row._mapping))
 
-                response = jsonify(RUNNERS_FETCHED, {"data": runners})
-                response.headers.add("Access-Control-Allow-Origin", "*")
-                response.status_code = 200
-                return response
+            response = jsonify(RUNNERS_FETCHED, {"data": runners})
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.status_code = 200
+            return response
 
 
 @runners.route("/<event_id>/<id>")
