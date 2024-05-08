@@ -138,7 +138,7 @@ def photographer_login():
 
 
 @auth.route("/runner/login", methods=["GET", "POST"])
-def photographer_login():
+def runner_login():
 
     if request.method == "POST":
 
