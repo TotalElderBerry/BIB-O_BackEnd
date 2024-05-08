@@ -8,15 +8,43 @@ from sqlalchemy import text
 runners = Blueprint("runners", __name__)
 
 
-@runners.route("/<event_id>")
-# @logged_in
-def get_all_runners(event_id):
+@runners.route("/")
+def get_all():
 
     runners = []
     with engine.connect() as conn:
 
-        query = text("SELECT * FROM event_registration WHERE event_id = :event_id")
-        params = dict(event_id=event_id)
+        query = text("SELECT * FROM runner")
+
+        result = conn.execute(query)
+
+        if not result:
+            response = jsonify(NO_RUNNERS)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.status_code = 404
+            return response
+        else:
+            for row in result:
+
+                runners.append(dict(row._mapping))
+                response = jsonify(RUNNERS_FETCHED, {"data": runners})
+                response.headers.add("Access-Control-Allow-Origin", "*")
+                response.status_code = 200
+                return response
+
+
+@runners.route("/<event_id>")
+# @logged_in
+def get_all_runners(event_id):
+
+    runner_status = request.args.get("status")
+    runners = []
+    with engine.connect() as conn:
+
+        query = text(
+            "SELECT * FROM event_registration WHERE event_id = :event_id LIKE status = :status"
+        )
+        params = dict(event_id=event_id, status=runner_status)
         result = conn.execute(query, params)
 
         if not result:
