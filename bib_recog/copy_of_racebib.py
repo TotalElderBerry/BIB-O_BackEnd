@@ -54,7 +54,42 @@ def scale_roi(x, y, w, h, image_shape, size=1.1):
     return new_x, new_y, new_w, new_h
 
 
-def images(folder, bibnumber):
+def images(event, bibnumber):
+    filenames = []
+    current_directory = os.getcwd()
+
+    # Assuming you have dynamic variables for the cascade file and input folder
+    detected_texts = os.path.join(
+        current_directory, "static", "gallery", event
+    )
+    if not os.path.exists(detected_texts):
+            os.makedirs(detected_texts)
+    detected_texts = os.path.join(detected_texts, 'detected_texts.dat')
+    # Create the output file if it doesn't exist
+    if not os.path.exists(detected_texts):
+        with open(detected_texts, "w") as f:
+            pass  # Create an empty file
+
+    # Open the file for reading
+    with open(detected_texts, "r") as f:
+        # Iterate over each line in the file
+        for line in f:
+            # Split the line into its components (path, filename, texts)
+            components = line.split(" ")
+
+            detected = components[2].split(",")
+            for txt in detected:
+                txt = txt.replace("'","")
+                txt = txt.replace("[","")
+                txt = txt.replace("]","")
+                if txt == '':
+                    continue
+                if txt.find(bibnumber) != -1 or bibnumber.find(txt) != -1:
+                    filenames.append({"path": components[0], "filename": components[1]})
+                    
+    return filenames
+
+def generate(event,photog,files):
     # Load the cascade
     # Get the current working directory
     current_directory = os.getcwd()
@@ -64,95 +99,80 @@ def images(folder, bibnumber):
         current_directory, "bib_recog", "cascade1.xml"
     )
     input_folder = os.path.join(
-        current_directory, "static", "gallery", folder
+        current_directory, "static", "gallery", event,photog
     )
     cascade = cv2.CascadeClassifier(
         cascade_file_path
     )
     filenames = []
-    # Folder paths
-    # input_folder = "C:/Users/PC/Desktop/BIB-O_BackEnd/static/gallery/" + folder
+    texts = []
+    output_file_path = "detected_texts.dat"  # Output file path
+    text_output = os.path.join(
+        current_directory, "static", "gallery", event, 'detected_texts.dat'
+    )
+    
+    # Create the output file if it doesn't exist
+    if not os.path.exists(output_file_path):
+        with open(output_file_path, "w") as f:
+            pass  # Create an empty file
 
-    # Iterate through each file in the folder
-    for filename in os.listdir(input_folder):
-        if filename.endswith(".jpg"):
-            # Read the input image
-            if bibnumber == "":
-                filenames.append(filename)
-                continue
-            image_path = os.path.join(input_folder, filename)
-            image = cv2.imread(image_path)
-            if image is None:
-                continue
-
-            # Convert the image to grayscale
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-            # Detect objects in the image
-            objects = cascade.detectMultiScale(
-                gray, scaleFactor=1.15, minNeighbors=7, minSize=(55, 50)
-            )
-
-            for x, y, w, h in objects:
-                if w < 100 or h < 100:
+    with open(text_output, "a") as f:
+        for file in files:
+            if file.filename.endswith(".jpg"):
+                image_path = os.path.join(input_folder, file.filename)
+                image = cv2.imread(image_path)
+                if image is None:
                     continue
-                new_x, new_y, new_w, new_h = scale_roi(x, y, w, h, gray.shape)
-                roi = gray[
-                    new_y : new_y + new_h, new_x : new_x + new_w
-                ]  # Extract the region of interest
-                if new_y + new_h < gray.shape[0] - 100:
-                    if new_x > 100 and new_x < gray.shape[1] - 100:
-                        roi_image = image[new_y : new_y + new_h, new_x : new_x + new_w]
-                        if roi_image.shape[0] > 0 and roi_image.shape[1] > 0:
-                            text = easy(roi_image)  # Perform OCR
-                            # text = "uhh"
-                            print("text in file: " + filename + " " + text)
-                            if len(text) == 1 or len(text) == 0:
-                                new_x, new_y, new_w, new_h = scale_roi(
-                                    x, y, w, h, gray.shape, 1.5
-                                )
-                                scale = cv2.GaussianBlur(roi_image, (5, 5), 0)
-                                # scale = cv2.medianBlur(scale, 5)
-                                # scale = cv2.dilate(scale, kernel, iterations=1)
-                                # scale = cv2.erode(scale, kernel, iterations=2)
-                                scale = cv2.Canny(scale, 90, 130)
-                                # if is_image_small:
-                                #     scale = cv2.Canny(scale, 100,200)
-                                # else:
-                                #     scale = cv2.Canny(scale, 90,130)
-                                scale = cv2.GaussianBlur(scale, (5, 5), 0)
-                                scale = cv2.threshold(
-                                    scale, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
-                                )[1]
-                                scale = cv2.resize(
-                                    scale,
-                                    None,
-                                    fx=2,
-                                    fy=2,
-                                    interpolation=cv2.INTER_CUBIC,
-                                )
-                                # scale = cv2.threshold(scale, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-                                scale = cv2.erode(
-                                    scale, (7, 7), iterations=2
-                                )  # for colored bg
-                                # scale = cv2.dilate(scale, kernel, iterations=1) #for white bg
-                                scale = cv2.morphologyEx(scale, cv2.MORPH_CLOSE, (7, 7))
-                                text = easy(scale)  # Perform OCR
-                                # print(text)
-                                # cv2.imshow('Object Detection', scale)
-                                # cv2.waitKey(0)
-                            if text == "":
-                                continue
-                            if text.find(bibnumber) != -1 or bibnumber.find(text) != -1:
-                                filenames.append(filename)
-                                print(text)
-                                # cv2.rectangle(image, (new_x, new_y), (new_x+new_w, new_y+new_h), (255, 0, 0), 2)
-                                # cv2.putText(image, text, (new_x, new_y), cv2.FONT_HERSHEY_SIMPLEX, 2, (123, 255, 123), 8)
-                                # output_path = os.path.join(output_folder, filename)
-                                # cv2.imwrite(output_path, image)
 
+                # Convert the image to grayscale
+                gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+                # Detect objects in the image
+                objects = cascade.detectMultiScale(
+                    gray, scaleFactor=1.15, minNeighbors=7, minSize=(55, 50)
+                )
+
+                for x, y, w, h in objects:
+                    if w < 100 or h < 100:
+                        continue
+                    new_x, new_y, new_w, new_h = scale_roi(x, y, w, h, gray.shape)
+                    roi = gray[
+                        new_y : new_y + new_h, new_x : new_x + new_w
+                    ]  # Extract the region of interest
+                    if new_y + new_h < gray.shape[0] - 100:
+                        if new_x > 100 and new_x < gray.shape[1] - 100:
+                            roi_image = image[new_y : new_y + new_h, new_x : new_x + new_w]
+                            if roi_image.shape[0] > 0 and roi_image.shape[1] > 0:
+                                text = easy(roi_image)  # Perform OCR
+                                # text = "uhh"
+                                print("text in file: " + file.filename + " " + text)
+                                if len(text) == 1 or len(text) == 0:
+                                    new_x, new_y, new_w, new_h = scale_roi(
+                                        x, y, w, h, gray.shape, 1.5
+                                    )
+                                    scale = cv2.GaussianBlur(roi_image, (5, 5), 0)
+                                    scale = cv2.Canny(scale, 90, 130)
+                                    scale = cv2.GaussianBlur(scale, (5, 5), 0)
+                                    scale = cv2.threshold(
+                                        scale, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
+                                    )[1]
+                                    scale = cv2.resize(
+                                        scale,
+                                        None,
+                                        fx=2,
+                                        fy=2,
+                                        interpolation=cv2.INTER_CUBIC,
+                                    )
+                                    # scale = cv2.threshold(scale, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+                                    scale = cv2.erode(
+                                        scale, (7, 7), iterations=2
+                                    )  # for colored bg
+                                    scale = cv2.morphologyEx(scale, cv2.MORPH_CLOSE, (7, 7))
+                                    text = easy(scale)  # Perform OCR
+                                if text == "":
+                                    continue
+                                texts.append(text)
+                                texts_str = ",".join(texts)
+            f.write(f"{event}\{photog} {file.filename} {texts_str}\n")
+            texts = []
     return filenames
-    # Display the result (if needed)
-    # cv2.imshow("Result", image)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()

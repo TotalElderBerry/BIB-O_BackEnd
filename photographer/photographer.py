@@ -80,11 +80,6 @@ def register_photographer():
             response.headers.add("Access-Control-Allow-Origin", "*")
             response.status_code = 400
             return response
-        elif data["address"] is None:
-            response = jsonify(ADDRESS_EMPTY)
-            response.headers.add("Access-Control-Allow-Origin", "*")
-            response.status_code = 400
-            return response
         elif data["email"] is None:
             response = jsonify(EMAIL_EMPTY)
             response.headers.add("Access-Control-Allow-Origin", "*")
