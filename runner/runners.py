@@ -63,7 +63,7 @@ def get_all_runners(event_id):
             return response
 
 
-@runners.route("/<id>")
+@runners.route("/one/<id>", methods=["GET"])
 # @logged_in
 def get_runner_by_id(id):
 
@@ -81,7 +81,7 @@ def get_runner_by_id(id):
             return response
 
         else:
-            response = jsonify(ONE_RUNNER_FETHCED, {"data": dict(result)})
+            response = jsonify(ONE_RUNNER_FETHCED, {"data": dict(result._mapping)})
             response.headers.add("Access-Control-Allow-Origin", "*")
             response.status_code = 200
             return response
