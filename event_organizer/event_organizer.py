@@ -348,28 +348,26 @@ def send_mail(runner_id, event_id):
             text-align: center;
             color: #ffbf00; /* Light gold */
         }
+        hr{
+        height: 2px; /* Increase thickness to 10 pixels */
+        background-color: #7e57ac;
+        }
         .container {
             max-width: 600px;
             margin: 20px auto;
             background-color: #fff; /* Dirty white */
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            border: 1px solid #7e57ac; /* Purple border */
+            border: 3px solid #7e57ac; /* Purple border */
         }
         .header {
-            background-color: #7e57ac; /* Purple */
             color: #fff;
             padding: 20px;
             border-top-left-radius: 10px;
             border-top-right-radius: 10px;
         }
-        .content {
-            padding: 20px;
-            border-bottom: 2px solid #ffd699; /* Lighter gold */
-        }
         .logo {
             text-align: center;
-            margin-bottom: 20px;
         }
         .logo img {
             max-width: 200px;
@@ -383,18 +381,18 @@ def send_mail(runner_id, event_id):
             line-height: 1.6;
         }
         .message_1{
-            font-size: 20px; /* Updated to 17px */
-            color: #000;
-            line-height: .8;
+          
         }
-        .details {
-            margin-top: 20px;
+        .details p {
+          font-size: 17px; /* Updated to 17px */
+            color: #000;
+            line-height: 1.2;
         }
         .footer {
             background-color: #7e57ac; /* Purple */
             padding: 10px 20px;
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
+            border-bottom-left-radius: 7px;
+            border-bottom-right-radius: 7px;
             text-align: center;
         }
         .footer p {
@@ -407,19 +405,21 @@ def send_mail(runner_id, event_id):
     <div class="container">
         <div class="header">
             <div class="logo">
-                 <img src="{{ url_for('static', filename='v2.png') }}" alt="Logo">
+                 <img src="https://pbs.twimg.com/media/GNJote-aQAAFIrR?format=png&name=small" alt="Logo">
             </div>
-            <h1></h1>
+            <hr>
         </div>
         <div class="content">
             <p class = "message">CONFIRMATION RECEIPT</p>
             <div class="details">
-                <p class = "message_1"><li><b>Full Name: {{ first_name }} {{ last_name }}</li></p>
-                <p class = "message_1"><li><b>Event Name: {{ event_name }}</li></p>
-                <p class = "message_1"><li><b>Event Date: {{ event_date }}</li></p>
-                <p class = "message_1"><li><b>Event Time: {{ event_time }}</li></p>
-                <p class = "message_1"><li><b>Category: {{ category }}</li></p>
-                <p class = "message_1"><li><b>Bib No: {{ bib_no }}</li></p>
+            <ul style="list-style-type: none; padding-left: 0;">
+                <p><li><b style="color: #7e57ac;">Full Name:</b> <b>{{ first_name }} {{ last_name }}</b></li></p>
+                <p><li><b style="color: #7e57ac;">Event Name:</b> <b>{{ event_name }}</b></li></p>
+                <p><li><b style="color: #7e57ac;">Event Date:</b> <b>{{ event_date }}</b></li></p>
+                <p><li><b style="color: #7e57ac;">Event Time:</b> <b>{{ event_time }}</b></li></p>
+                <p><li><b style="color: #7e57ac;">Category:</b> <b>{{ category }}</b></li></p>
+                <p><li><b style="color: #7e57ac;">Bib No:</b> <b>{{ bib_no }}</b></li></p>
+            </ul>
             </div>
         </div>
         <div class="footer">
@@ -445,8 +445,6 @@ def send_mail(runner_id, event_id):
         html=html_content,
     )
     mail.send(msg)
-
-    # Create a JSON response
     response = jsonify({"success": True, "message": "Email sent!"})
     response.headers.add("Access-Control-Allow-Origin", "*")
     response.status_code = 200
